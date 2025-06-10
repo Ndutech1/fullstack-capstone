@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/auth');
-const User = require('../models/User');
+const User = require('../Models/User');
 
 // Add to watchlist
 router.post('/', authMiddleware, async (req, res) => {
