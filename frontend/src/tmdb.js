@@ -15,3 +15,9 @@ export const searchMovies = async (query) => {
   });
   return res.data.results;
 };
+export const getMovieDetails = async (movieId) => {
+  const res = await tmdb.get(`/movie/${movieId}`, {
+    params: { api_key: API_KEY },
+  });
+  return res.data;
+};

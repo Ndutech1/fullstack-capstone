@@ -13,6 +13,7 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import { searchMovies } from '../tmdb';
 import { AuthContext } from '../Authcontext'; // ✅ Correct casing
 import API from '../api';
+import { Link } from 'react-router-dom';
 
 export default function Discover() {
   const [query, setQuery] = useState('');
@@ -66,38 +67,40 @@ export default function Discover() {
         ) : (
           movies.map((movie) => (
             <Grid item key={movie.id} xs={12} sm={6} md={4} lg={3}>
-              <Card>
-                <CardMedia
-                  component="img"
-                  height="300"
-                  image={
-                    movie.poster_path
-                      ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-                      : 'https://via.placeholder.com/500x750?text=No+Image'
-                  }
-                  alt={movie.title}
-                />
-                <CardContent>
-                  <Typography variant="h6">{movie.title}</Typography>
-                  <Typography variant="body2">
-                    Rating: {movie.vote_average}
-                  </Typography>
-                  <Typography variant="body2">
-                    Release: {movie.release_date}
-                  </Typography>
+              <Link to={`/movies/${movie.id}`} style={{ textDecoration: 'none' }}>
+                <Card>
+                  <CardMedia
+                    component="img"
+                    height="300"
+                    image={
+                      movie.poster_path
+                        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+                        : 'https://via.placeholder.com/500x750?text=No+Image'
+                    }
+                    alt={movie.title}
+                  />
+                  <CardContent>
+                    <Typography variant="h6">{movie.title}</Typography>
+                    <Typography variant="body2">
+                      Rating: {movie.vote_average}
+                    </Typography>
+                    <Typography variant="body2">
+                      Release: {movie.release_date}
+                    </Typography>
 
-                  <Button
-                    onClick={() => handleFavorite(movie)}
-                    startIcon={<FavoriteIcon />}
-                    variant="outlined"
-                    fullWidth
-                    sx={{ mt: 1 }}
-                    disabled={!user}
-                  >
-                    Save to Favorites
-                  </Button>
-                </CardContent>
-              </Card>
+                    <Button
+                      onClick={() => handleFavorite(movie)}
+                      startIcon={<FavoriteIcon />}
+                      variant="outlined"
+                      fullWidth
+                      sx={{ mt: 1 }}
+                      disabled={!user}
+                    >
+                      Save to Favorites
+                    </Button>
+                  </CardContent>
+                </Card>
+              </Link>
             </Grid>
           ))
         )}

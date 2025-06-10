@@ -8,6 +8,8 @@ import Favorites from './pages/Favorites';
 import { AuthProvider } from './Authcontext';
 import ProtectedRoute from './Components/ProtectedRoute';
 import Navbar from './Components/Navbar';
+import MovieDetails from './pages/MovieDetails';
+
 
 function App() {
   return (
@@ -19,6 +21,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/discover" element={<Discover />} />
+          <Route path="/movies/:id" element={<MovieDetails />} />
           <Route
             path="/profile"
             element={
