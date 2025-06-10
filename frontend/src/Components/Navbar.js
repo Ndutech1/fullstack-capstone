@@ -14,12 +14,17 @@ export default function Navbar() {
         </Typography>
         <Button color="inherit" component={Link} to="/">Home</Button>
         <Button color="inherit" component={Link} to="/discover">Discover</Button>
-        <Button color="inherit" component={Link} to="/favorites">Favorites</Button>
+        
+
 
         {user ? (
           <>
+          <Button color="inherit" component={Link} to="/favorites">Favorites</Button>
+            <Button color="inherit" component={Link} to="/watchlist">Watchlist</Button>
+            <Button color="inherit" component={Link} to="/recommendations">Recommendations</Button>
             <Button color="inherit" component={Link} to="/profile">Profile</Button>
             <Button color="inherit" onClick={logout}>Logout</Button>
+            
           </>
         ) : (
           <>

@@ -9,6 +9,9 @@ import { AuthProvider } from './Authcontext';
 import ProtectedRoute from './Components/ProtectedRoute';
 import Navbar from './Components/Navbar';
 import MovieDetails from './pages/MovieDetails';
+import Watchlist from './pages/Watchlist';
+import Recommendations from './pages/Recommendations';
+
 
 
 function App() {
@@ -35,6 +38,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <Favorites />
+              </ProtectedRoute>
+            }
+          />
+          <Route 
+          path="/recommendations" 
+          element={
+          <ProtectedRoute>
+            <Recommendations />
+            </ProtectedRoute>
+            } 
+            />
+          <Route
+            path="/watchlist"
+            element={
+              <ProtectedRoute>
+                <Watchlist />
               </ProtectedRoute>
             }
           />

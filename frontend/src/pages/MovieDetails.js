@@ -1,11 +1,27 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import { getMovieDetails } from '../tmdb';
-import { Container, Typography, CircularProgress, Grid, CardMedia } from '@mui/material';
+import API from '../api';
+import { AuthContext } from '../Authcontext';
+import {
+  Container,
+  Typography,
+  CircularProgress,
+  Grid,
+  CardMedia,
+  TextField,
+  Rating,
+  Button,
+  Box
+} from '@mui/material';
 
 export default function MovieDetails() {
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
+  const [rating, setRating] = useState(0);
+  const [text, setText] = useState('');
+  const [reviews, setReviews] = useState([]);
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     async function fetchMovie() {
@@ -14,6 +30,30 @@ export default function MovieDetails() {
     }
     fetchMovie();
   }, [id]);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      const res = await API.get(`/reviews/${id}`);
+      setReviews(res.data);
+    };
+    fetchReviews();
+  }, [id]);
+
+  const handleSubmitReview = async () => {
+    try {
+      const res = await API.post('/reviews', {
+        movieId: id,
+        movieTitle: movie.title,
+        rating,
+        text,
+      });
+      setReviews([...reviews.filter(r => r.userId !== user.id), res.data]);
+      setText('');
+      setRating(0);
+    } catch (err) {
+      alert('Login required to leave a review.');
+    }
+  };
 
   if (!movie) {
     return <CircularProgress />;
@@ -31,12 +71,50 @@ export default function MovieDetails() {
         </Grid>
         <Grid item xs={12} md={7}>
           <Typography variant="h4" gutterBottom>{movie.title}</Typography>
-          <Typography variant="subtitle1" gutterBottom>{movie.release_date} • {movie.runtime} mins</Typography>
+          <Typography variant="subtitle1" gutterBottom>
+            {movie.release_date} • {movie.runtime} mins
+          </Typography>
           <Typography variant="body1" paragraph>{movie.overview}</Typography>
           <Typography variant="body2">Rating: {movie.vote_average}</Typography>
-          <Typography variant="body2">Genres: {movie.genres.map(g => g.name).join(', ')}</Typography>
+          <Typography variant="body2">
+            Genres: {movie.genres.map(g => g.name).join(', ')}
+          </Typography>
         </Grid>
       </Grid>
+
+      {user && (
+        <Box sx={{ mt: 4 }}>
+          <Typography variant="h6">Leave a Review</Typography>
+          <Rating
+            value={rating}
+            onChange={(e, newValue) => setRating(newValue)}
+          />
+          <TextField
+            fullWidth
+            multiline
+            rows={3}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Write your thoughts..."
+            sx={{ mt: 1 }}
+          />
+          <Button variant="contained" sx={{ mt: 2 }} onClick={handleSubmitReview}>
+            Submit Review
+          </Button>
+        </Box>
+      )}
+
+      <Box sx={{ mt: 4 }}>
+        <Typography variant="h6" gutterBottom>User Reviews</Typography>
+        {reviews.length === 0 && <Typography>No reviews yet.</Typography>}
+        {reviews.map((rev) => (
+          <Box key={rev._id} sx={{ mb: 2, p: 2, border: '1px solid #ddd', borderRadius: 2 }}>
+            <Typography variant="subtitle2">{rev.username}</Typography>
+            <Rating value={rev.rating} readOnly />
+            <Typography variant="body2">{rev.text}</Typography>
+          </Box>
+        ))}
+      </Box>
     </Container>
   );
 }

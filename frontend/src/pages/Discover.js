@@ -14,6 +14,8 @@ import { searchMovies } from '../tmdb';
 import { AuthContext } from '../Authcontext'; // ✅ Correct casing
 import API from '../api';
 import { Link } from 'react-router-dom';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
+
 
 export default function Discover() {
   const [query, setQuery] = useState('');
@@ -34,6 +36,14 @@ export default function Discover() {
       alert('Login required to save favorites.');
     }
   };
+const handleAddToWatchlist = async (movie) => {
+  try {
+    await API.post('/watchlist', { movie });
+    alert('Added to Watchlist!');
+  } catch (err) {
+    alert('Login required to save to Watchlist.');
+  }
+};
 
   return (
     <div style={{ padding: '2rem' }}>
@@ -98,6 +108,15 @@ export default function Discover() {
                     >
                       Save to Favorites
                     </Button>
+                    <Button
+                      onClick={() => handleAddToWatchlist(movie)}
+                      startIcon={<BookmarkIcon />}
+                      variant="outlined"
+                      fullWidth
+                    >
+                      Add to Watchlist
+                    </Button>
+
                   </CardContent>
                 </Card>
               </Link>
