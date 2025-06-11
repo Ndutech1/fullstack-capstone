@@ -9,7 +9,7 @@ const app = express();
 // Replace this with your actual Vercel frontend domain
 const allowedOrigins = [
   'https://frontend-git-main-ndutech1s-projects.vercel.app',
-  'https://frontend-czvuaukuk-ndutech1s-projects.vercel.app',
+  'https://frontend-iai66khbs-ndutech1s-projects.vercel.app',
   'http://localhost:3000',
 ];
 
@@ -34,9 +34,6 @@ dotenv.config();
 const connectDB = require('./Config/db');
 connectDB();
 
-// Auth routes
-app.use('/api/auth', require('./routes/auth'));
-
 // Favorites routes
 const favoriteRoutes = require('./routes/favorites');
 app.use('/api/favorites', favoriteRoutes);
@@ -54,3 +51,6 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+// Auth routes
+app.use('/auth', require('./routes/auth'));
