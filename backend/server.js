@@ -7,11 +7,21 @@ const cors = require('cors');
 const app = express();
 
 // Replace this with your actual Vercel frontend domain
-const allowedOrigin = 'https://frontend-git-main-ndutech1s-projects.vercel.app';
+const allowedOrigins = [
+  'https://frontend-git-main-ndutech1s-projects.vercel.app',
+  'https://frontend-czvuaukuk-ndutech1s-projects.vercel.app',
+  'http://localhost:3000',
+];
 
 app.use(cors({
-  origin: allowedOrigin,
-  credentials: true
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
 }));
 
 // Middleware
