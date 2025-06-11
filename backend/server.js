@@ -3,6 +3,14 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
 
+// Replace this with your actual Vercel frontend domain
+const allowedOrigin = 'https://frontend-git-main-ndutech1s-projects.vercel.app';
+
+app.use(cors({
+  origin: allowedOrigin,
+  credentials: true
+}));
+
 // Load environment variables
 dotenv.config();
 
@@ -10,7 +18,6 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors());
 app.use(express.json());
 
 // Connect to MongoDB
