@@ -22,7 +22,7 @@ export default function Login() {
 
     try {
       console.log('Login form:', form); // debug
-      const res = await API.post('/auth/login', form);
+      const res = await API.post('/api/auth/login', form);
       console.log('Login success:', res.data); // debug
       login(res.data.user, res.data.token); // function from context
       navigate('/');
