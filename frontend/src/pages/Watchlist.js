@@ -10,7 +10,7 @@ export default function Watchlist() {
 
   useEffect(() => {
     async function fetchData() {
-      const res = await API.get('/watchlist');
+      const res = await API.get('/api/watchlist');
       setWatchlist(res.data);
     }
     fetchData();
@@ -18,7 +18,7 @@ export default function Watchlist() {
 
 const handleRemove = async (id) => {
   try {
-    const res = await API.delete(`/watchlist/${id}`);
+    const res = await API.delete(`/api/watchlist/${id}`);
     setWatchlist(res.data);
   } catch (err) {
     console.error(err);

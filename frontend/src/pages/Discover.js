@@ -30,7 +30,7 @@ export default function Discover() {
 
   const handleFavorite = async (movie) => {
     try {
-      await API.post('/favorites', { movie });
+      await API.post('/api/favorites', { movie });
       alert('Added to favorites!');
     } catch (err) {
       alert('Login required to save favorites.');
@@ -38,7 +38,7 @@ export default function Discover() {
   };
 const handleAddToWatchlist = async (movie) => {
   try {
-    await API.post('/watchlist', { movie });
+    await API.post('/api/watchlist', { movie });
     alert('Added to Watchlist!');
   } catch (err) {
     alert('Login required to save to Watchlist.');
