@@ -5,7 +5,7 @@ import { AuthContext } from '../Authcontext';
 import { useNavigate } from 'react-router-dom';
 
 export default function Register() {
-  const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const [form, setForm] = useState({ name: '', username: '', email: '', password: '' });
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -27,11 +27,48 @@ export default function Register() {
   return (
     <Container maxWidth="sm">
       <Typography variant="h4" gutterBottom>Register</Typography>
-      <form onSubmit={handleSubmit}>
-        <TextField fullWidth margin="normal" name="name" label="Name" onChange={handleChange} />
-        <TextField fullWidth margin="normal" name="email" label="Email" onChange={handleChange} />
-        <TextField fullWidth margin="normal" name="password" label="Password" type="password" onChange={handleChange} />
-        <Button type="submit" variant="contained" color="primary" fullWidth>Register</Button>
+      <form onSubmit={handleSubmit} autoComplete="off">
+        <TextField
+          fullWidth
+          margin="normal"
+          name="name"
+          label="Name"
+          value={form.name}
+          onChange={handleChange}
+          required
+        />
+        <TextField
+          fullWidth
+          margin="normal"
+          name="username"
+          label="Username"
+          value={form.username}
+          onChange={handleChange}
+          required
+        />
+        <TextField
+          fullWidth
+          margin="normal"
+          name="email"
+          label="Email"
+          type="email"
+          value={form.email}
+          onChange={handleChange}
+          required
+        />
+        <TextField
+          fullWidth
+          margin="normal"
+          name="password"
+          label="Password"
+          type="password"
+          value={form.password}
+          onChange={handleChange}
+          required
+        />
+        <Button type="submit" variant="contained" color="primary" fullWidth>
+          Register
+        </Button>
       </form>
     </Container>
   );

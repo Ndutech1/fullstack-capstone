@@ -1,7 +1,6 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const dotenv = require('dotenv');
 const cors = require('cors');
 
 // Create Express app
@@ -15,7 +14,8 @@ const allowedOrigins = [
 ];
 
 app.use(cors({
-  origin: (origin, callback) => {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, Postman)
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -28,30 +28,31 @@ app.use(cors({
 // Middleware
 app.use(express.json());
 
-// Load environment variables
-dotenv.config();
-
 // Connect to MongoDB
 const connectDB = require('./Config/db');
-connectDB();
+connectDB().catch(err => {
+  console.error('MongoDB connection error:', err);
+  process.exit(1);
+});
 
 // Favorites routes
 const favoriteRoutes = require('./routes/favorites');
 app.use('/api/favorites', favoriteRoutes);
 
 // Watchlist routes
-const watchlistRoutes = require('./routes/watchlist');  
+const watchlistRoutes = require('./routes/watchlist');
 app.use('/api/watchlist', watchlistRoutes);
 
 // Reviews routes
 const reviewRoutes = require('./routes/reviews');
 app.use('/api/reviews', reviewRoutes);
 
+// Auth routes
+const authRoutes = require('./routes/auth');
+app.use('/api/auth', authRoutes);
+
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
-// Auth routes
-app.use('/auth', require('./routes/auth'));
