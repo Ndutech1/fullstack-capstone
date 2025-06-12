@@ -8,7 +8,7 @@ export default function Recommendations() {
 
   useEffect(() => {
     const fetch = async () => {
-      const res = await API.get('/favorites');
+      const res = await API.get('/api/favorites');
       if (res.data.length > 0) {
         const lastLiked = res.data[res.data.length - 1];
         const recs = await getRecommendations(lastLiked.id);

@@ -33,7 +33,7 @@ export default function MovieDetails() {
 
   useEffect(() => {
     const fetchReviews = async () => {
-      const res = await API.get(`/reviews/${id}`);
+      const res = await API.get(`/api/reviews/${id}`);
       setReviews(res.data);
     };
     fetchReviews();
@@ -41,7 +41,7 @@ export default function MovieDetails() {
 
   const handleSubmitReview = async () => {
     try {
-      const res = await API.post('/reviews', {
+      const res = await API.post('/api/reviews', {
         movieId: id,
         movieTitle: movie.title,
         rating,
