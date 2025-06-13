@@ -1,9 +1,15 @@
 import React, { useEffect, useState, useContext } from 'react';
 import API from '../api';
 import {
-  Container, Typography, Box, Grid, Card, CardMedia, CardContent,
+  Container,
+  Typography,
+  Box,
+  Grid,
+  Card,
+  CardMedia,
+  CardContent,
 } from '@mui/material';
-import { AuthContext } from '../AuthContext';
+import { AuthContext } from '../Authcontext';
 
 export default function Profile() {
   const [data, setData] = useState(null);
@@ -11,69 +17,101 @@ export default function Profile() {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const res = await API.get('/users/me');
-      setData(res.data);
+      try {
+        const res = await API.get('/users/me');
+        setData(res.data);
+      } catch (err) {
+        console.error('Error fetching profile:', err);
+      }
     };
     fetchProfile();
   }, []);
 
   if (!data) return <Typography>Loading...</Typography>;
 
-  const { user: userInfo, favorites, watchlist, reviews } = data;
+  const { user: userInfo, favorites = [], watchlist = [], reviews = [] } = data;
 
   return (
     <Container sx={{ mt: 4 }}>
-      <Typography variant="h4" gutterBottom>Welcome, {userInfo.username}</Typography>
+      <Typography variant="h4" gutterBottom>
+        Welcome, {userInfo.username}
+      </Typography>
 
+      {/* Favorites Section */}
       <Box sx={{ mt: 4 }}>
         <Typography variant="h6">Your Favorites</Typography>
-        <Grid container spacing={2}>
-          {favorites.map((movie) => (
-            <Grid item key={movie.id} xs={6} md={3}>
-              <Card>
-                <CardMedia
-                  component="img"
-                  image={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                  height="300"
-                />
-                <CardContent>
-                  <Typography>{movie.title}</Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
+        {favorites.length === 0 ? (
+          <Typography>No favorite movies yet.</Typography>
+        ) : (
+          <Grid container spacing={2}>
+            {favorites.map((movie, index) => (
+              <Grid item key={index} xs={6} md={3}>
+                <Card>
+                  <CardMedia
+                    component="img"
+                    image={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                    height="300"
+                    alt={movie.title}
+                  />
+                  <CardContent>
+                    <Typography>{movie.title}</Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        )}
       </Box>
 
+      {/* Watchlist Section */}
       <Box sx={{ mt: 4 }}>
         <Typography variant="h6">Your Watchlist</Typography>
-        <Grid container spacing={2}>
-          {watchlist.map((movie) => (
-            <Grid item key={movie.id} xs={6} md={3}>
-              <Card>
-                <CardMedia
-                  component="img"
-                  image={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                  height="300"
-                />
-                <CardContent>
-                  <Typography>{movie.title}</Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
+        {watchlist.length === 0 ? (
+          <Typography>No movies in your watchlist.</Typography>
+        ) : (
+          <Grid container spacing={2}>
+            {watchlist.map((movie, index) => (
+              <Grid item key={index} xs={6} md={3}>
+                <Card>
+                  <CardMedia
+                    component="img"
+                    image={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                    height="300"
+                    alt={movie.title}
+                  />
+                  <CardContent>
+                    <Typography>{movie.title}</Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        )}
       </Box>
 
+      {/* Reviews Section */}
       <Box sx={{ mt: 4 }}>
         <Typography variant="h6">Your Reviews</Typography>
-        {reviews.length === 0 && <Typography>No reviews yet.</Typography>}
-        {reviews.map((rev) => (
-          <Box key={rev._id} sx={{ mb: 2, p: 2, border: '1px solid #ddd', borderRadius: 2 }}>
-            <Typography variant="subtitle2">{rev.movieTitle}</Typography>
-            <Typography variant="body2">⭐ {rev.rating} — {rev.text}</Typography>
-          </Box>
-        ))}
+        {reviews.length === 0 ? (
+          <Typography>No reviews yet.</Typography>
+        ) : (
+          reviews.map((rev) => (
+            <Box
+              key={rev._id}
+              sx={{
+                mb: 2,
+                p: 2,
+                border: '1px solid #ddd',
+                borderRadius: 2,
+              }}
+            >
+              <Typography variant="subtitle2">{rev.movieTitle}</Typography>
+              <Typography variant="body2">
+                ⭐ {rev.rating} — {rev.text}
+              </Typography>
+            </Box>
+          ))
+        )}
       </Box>
     </Container>
   );
