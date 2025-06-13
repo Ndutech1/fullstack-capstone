@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import {
   TextField,
   Button,
@@ -6,27 +6,48 @@ import {
   Typography,
   Card,
   CardMedia,
-  CardContent
+  CardContent,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-
-import { searchMovies } from '../tmdb';
-import { AuthContext } from '../Authcontext'; // ✅ Correct casing
-import API from '../api';
-import { Link } from 'react-router-dom';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
+import { Link } from 'react-router-dom';
 
+import { searchMovies, discoverMovies } from '../tmdb';
+import { AuthContext } from '../Authcontext';
+import API from '../api';
+
+const genres = [
+  { id: 28, name: 'Action' },
+  { id: 35, name: 'Comedy' },
+  { id: 18, name: 'Drama' },
+  { id: 27, name: 'Horror' },
+  { id: 10749, name: 'Romance' },
+  { id: 878, name: 'Sci-Fi' }
+];
 
 export default function Discover() {
   const [query, setQuery] = useState('');
   const [movies, setMovies] = useState([]);
-  const { user } = useContext(AuthContext); // ✅ Safe now that AuthProvider is in index.js
+  const [filters, setFilters] = useState({ genre: '', sortBy: '', year: '', rating: '' });
+  const { user } = useContext(AuthContext);
 
   const handleSearch = async () => {
-    if (!query.trim()) return;
-    const results = await searchMovies(query);
-    setMovies(results);
+    if (query.trim()) {
+      const results = await searchMovies(query);
+      setMovies(results);
+    } else {
+      const results = await discoverMovies(filters);
+      setMovies(results);
+    }
   };
+
+  useEffect(() => {
+    if (!query.trim()) handleSearch();
+  }, [filters]);
 
   const handleFavorite = async (movie) => {
     try {
@@ -36,14 +57,19 @@ export default function Discover() {
       alert('Login required to save favorites.');
     }
   };
-const handleAddToWatchlist = async (movie) => {
-  try {
-    await API.post('/api/watchlist', { movie });
-    alert('Added to Watchlist!');
-  } catch (err) {
-    alert('Login required to save to Watchlist.');
-  }
-};
+
+  const handleAddToWatchlist = async (movie) => {
+    try {
+      await API.post('/api/watchlist', { movie });
+      alert('Added to Watchlist!');
+    } catch (err) {
+      alert('Login required to save to Watchlist.');
+    }
+  };
+
+  const handleFilterChange = (e) => {
+    setFilters({ ...filters, [e.target.name]: e.target.value });
+  };
 
   return (
     <div style={{ padding: '2rem' }}>
@@ -51,7 +77,7 @@ const handleAddToWatchlist = async (movie) => {
         Discover Movies
       </Typography>
 
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
         <TextField
           label="Search by title"
           variant="outlined"
@@ -67,11 +93,55 @@ const handleAddToWatchlist = async (movie) => {
         </Button>
       </div>
 
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+        <FormControl sx={{ minWidth: 150 }}>
+          <InputLabel>Genre</InputLabel>
+          <Select name="genre" value={filters.genre} onChange={handleFilterChange}>
+            <MenuItem value="">All</MenuItem>
+            {genres.map((g) => (
+              <MenuItem key={g.id} value={g.id}>{g.name}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <FormControl sx={{ minWidth: 150 }}>
+          <InputLabel>Sort By</InputLabel>
+          <Select name="sortBy" value={filters.sortBy} onChange={handleFilterChange}>
+            <MenuItem value="">Default</MenuItem>
+            <MenuItem value="popularity.desc">Popularity</MenuItem>
+            <MenuItem value="vote_average.desc">Rating</MenuItem>
+            <MenuItem value="primary_release_date.desc">Release Date</MenuItem>
+          </Select>
+        </FormControl>
+
+        <FormControl sx={{ minWidth: 120 }}>
+          <InputLabel>Year</InputLabel>
+          <Select name="year" value={filters.year} onChange={handleFilterChange}>
+            <MenuItem value="">All</MenuItem>
+            {[...Array(15)].map((_, i) => {
+              const year = 2025 - i;
+              return <MenuItem key={year} value={year}>{year}</MenuItem>;
+            })}
+          </Select>
+        </FormControl>
+
+        <FormControl sx={{ minWidth: 120 }}>
+          <InputLabel>Min Rating</InputLabel>
+          <Select name="rating" value={filters.rating} onChange={handleFilterChange}>
+            <MenuItem value="">All</MenuItem>
+            {[...Array(9)].map((_, i) => {
+              const rating = i + 1;
+              return <MenuItem key={rating} value={rating}>{rating}+</MenuItem>;
+            })}
+          </Select>
+        </FormControl>
+      </div>
+
       <Grid container spacing={3}>
         {movies.length === 0 ? (
           <Grid item xs={12}>
             <Typography variant="body1" align="center">
-              No movies found. Try searching for something!
+              No movies found. Try searching or applying different filters.
             </Typography>
           </Grid>
         ) : (
@@ -116,7 +186,6 @@ const handleAddToWatchlist = async (movie) => {
                     >
                       Add to Watchlist
                     </Button>
-
                   </CardContent>
                 </Card>
               </Link>

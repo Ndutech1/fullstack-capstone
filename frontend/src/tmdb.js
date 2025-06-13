@@ -50,3 +50,16 @@ export const getTrailers = async (movieId) => {
     return [];
   }
 };
+
+export const discoverMovies = async (filters) => {
+  const res = await tmdb.get('/discover/movie', {
+    params: {
+      api_key: API_KEY,
+      sort_by: filters.sortBy || 'popularity.desc',
+      with_genres: filters.genre || '',
+      primary_release_year: filters.year || '',
+      'vote_average.gte': filters.rating || '',
+    },
+  });
+  return res.data.results;
+};
