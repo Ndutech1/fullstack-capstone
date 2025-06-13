@@ -36,7 +36,7 @@ export default function MovieDetails() {
   useEffect(() => {
     const fetchTrailers = async () => {
       const vids = await getTrailers(id);
-      console.log('fetched Trailers:', vids);
+      console.log('fetched trailers:', vids);
       setTrailers(vids);
     };
     fetchTrailers();

@@ -30,13 +30,23 @@ export const getRecommendations = async (movieId) => {
   return res.data.results;
 };
 
-// Fetch the primary YouTube trailer key for a movie (returns null if none found)
 export const getTrailers = async (movieId) => {
-  const res = await tmdb.get(`/movie/${movieId}/videos`, {
-    params: { api_key: API_KEY },
-  });
+  try {
+    const res = await tmdb.get(`/movie/${movieId}/videos`, {
+      params: { api_key: API_KEY },
+    });
 
-  return res.data.results.filter(
-    (v) => v.type === 'Trailer' && v.site === 'YouTube'
-  );
+    console.log('Raw trailer response:', res.data); // 🔍 Log raw result
+
+    const filtered = res.data.results.filter(
+      (v) => v.site === 'YouTube' && v.type === 'Trailer'
+    );
+
+    console.log('Filtered trailers:', filtered); // 🔍 Confirm filtered output
+
+    return filtered;
+  } catch (error) {
+    console.error('Error fetching trailers:', error); // 🔥 Catch and log error
+    return [];
+  }
 };
