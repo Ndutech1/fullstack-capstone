@@ -31,14 +31,12 @@ export const getRecommendations = async (movieId) => {
 };
 
 // Fetch the primary YouTube trailer key for a movie (returns null if none found)
-export const getTrailer = async (movieId) => {
+export const getTrailers = async (movieId) => {
   const res = await tmdb.get(`/movie/${movieId}/videos`, {
     params: { api_key: API_KEY },
   });
 
-  const trailers = res.data.results.filter(
+  return res.data.results.filter(
     (v) => v.type === 'Trailer' && v.site === 'YouTube'
   );
-
-  return trailers.length > 0 ? trailers[0].key : null;
 };

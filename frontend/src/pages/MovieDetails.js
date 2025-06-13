@@ -1,9 +1,8 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useParams } from 'react-router-dom';
-import { getMovieDetails, getTrailer } from '../tmdb';
+import { getMovieDetails, getTrailers } from '../tmdb';
 import API from '../api';
 import { AuthContext } from '../Authcontext';
-import ReactPlayer from 'react-player/youtube';
 import {
   Container,
   Typography,
@@ -15,11 +14,12 @@ import {
   Button,
   Box
 } from '@mui/material';
+import ReactPlayer from 'react-player';
 
 export default function MovieDetails() {
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
-  const [trailerKey, setTrailerKey] = useState(null);
+  const [trailers, setTrailers] = useState([]);
   const [rating, setRating] = useState(0);
   const [text, setText] = useState('');
   const [reviews, setReviews] = useState([]);
@@ -34,11 +34,11 @@ export default function MovieDetails() {
   }, [id]);
 
   useEffect(() => {
-    async function fetchTrailer() {
-      const key = await getTrailer(id);
-      setTrailerKey(key);
-    }
-    fetchTrailer();
+    const fetchTrailers = async () => {
+      const vids = await getTrailers(id);
+      setTrailers(vids);
+    };
+    fetchTrailers();
   }, [id]);
 
   useEffect(() => {
@@ -65,9 +65,7 @@ export default function MovieDetails() {
     }
   };
 
-  if (!movie) {
-    return <CircularProgress />;
-  }
+  if (!movie) return <CircularProgress />;
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
@@ -89,21 +87,41 @@ export default function MovieDetails() {
           <Typography variant="body2">
             Genres: {movie.genres.map(g => g.name).join(', ')}
           </Typography>
+
+          <Button
+            variant="outlined"
+            sx={{ mt: 2 }}
+            onClick={() => {
+              const el = document.getElementById('trailer-section');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }}
+          >
+            Watch Trailer
+          </Button>
         </Grid>
       </Grid>
 
-      {trailerKey && (
-        <Box sx={{ mt: 4 }}>
-          <Typography variant="h6" gutterBottom>Watch Trailer</Typography>
-          <ReactPlayer
-            url={`https://www.youtube.com/watch?v=${trailerKey}`}
-            width="100%"
-            height="360px"
-            controls
-          />
-        </Box>
-      )}
+      {/* Trailer Section */}
+      <Box id="trailer-section" sx={{ mt: 6 }}>
+        <Typography variant="h6" gutterBottom>Watch Trailer</Typography>
+        {trailers.length === 0 ? (
+          <Typography color="textSecondary">No trailer available.</Typography>
+        ) : (
+          trailers.map((t) => (
+            <Box key={t.key} sx={{ my: 2 }}>
+              <Typography variant="subtitle2">{t.name}</Typography>
+              <ReactPlayer
+                url={`https://www.youtube.com/watch?v=${t.key}`}
+                width="100%"
+                height="360px"
+                controls
+              />
+            </Box>
+          ))
+        )}
+      </Box>
 
+      {/* Review Form */}
       {user && (
         <Box sx={{ mt: 4 }}>
           <Typography variant="h6">Leave a Review</Typography>
@@ -126,6 +144,7 @@ export default function MovieDetails() {
         </Box>
       )}
 
+      {/* Reviews */}
       <Box sx={{ mt: 4 }}>
         <Typography variant="h6" gutterBottom>User Reviews</Typography>
         {reviews.length === 0 && <Typography>No reviews yet.</Typography>}
