@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useParams } from 'react-router-dom';
-import { getMovieDetails } from '../tmdb';
+import { getMovieDetails, getTrailer } from '../tmdb';
 import API from '../api';
 import { AuthContext } from '../Authcontext';
+import ReactPlayer from 'react-player/youtube';
 import {
   Container,
   Typography,
@@ -18,6 +19,7 @@ import {
 export default function MovieDetails() {
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
+  const [trailerKey, setTrailerKey] = useState(null);
   const [rating, setRating] = useState(0);
   const [text, setText] = useState('');
   const [reviews, setReviews] = useState([]);
@@ -29,6 +31,14 @@ export default function MovieDetails() {
       setMovie(data);
     }
     fetchMovie();
+  }, [id]);
+
+  useEffect(() => {
+    async function fetchTrailer() {
+      const key = await getTrailer(id);
+      setTrailerKey(key);
+    }
+    fetchTrailer();
   }, [id]);
 
   useEffect(() => {
@@ -81,6 +91,18 @@ export default function MovieDetails() {
           </Typography>
         </Grid>
       </Grid>
+
+      {trailerKey && (
+        <Box sx={{ mt: 4 }}>
+          <Typography variant="h6" gutterBottom>Watch Trailer</Typography>
+          <ReactPlayer
+            url={`https://www.youtube.com/watch?v=${trailerKey}`}
+            width="100%"
+            height="360px"
+            controls
+          />
+        </Box>
+      )}
 
       {user && (
         <Box sx={{ mt: 4 }}>
