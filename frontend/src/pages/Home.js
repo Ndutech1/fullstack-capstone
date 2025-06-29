@@ -54,6 +54,24 @@ export default function Home() {
         </Button>
       </Box>
 
+      {/* Moved Explore by Genre box here */}
+      <Box sx={{ mt: 4 }}>
+        <Typography variant="h5">🎯 Explore by Genre</Typography>
+        <Grid container spacing={2} sx={{ mt: 2 }}>
+          {genres.map((genre) => (
+            <Grid item key={genre.id}>
+              <Button
+                variant="outlined"
+                href={`/discover?genre=${genre.id}`}
+                sx={{ textTransform: 'none' }}
+              >
+                {genre.name}
+              </Button>
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
+
       {aiMovies.length > 0 && (
         <Box sx={{ mt: 4 }}>
           <Typography variant="h6">🎯 AI Suggested Movies:</Typography>
@@ -91,23 +109,6 @@ export default function Home() {
                   <Typography>{movie.title}</Typography>
                 </CardContent>
               </Card>
-            </Grid>
-          ))}
-        </Grid>
-      </Box>
-
-      <Box sx={{ mt: 4 }}>
-        <Typography variant="h5">🎯 Explore by Genre</Typography>
-        <Grid container spacing={2} sx={{ mt: 2 }}>
-          {genres.map((genre) => (
-            <Grid item key={genre.id}>
-              <Button
-                variant="outlined"
-                href={`/discover?genre=${genre.id}`}
-                sx={{ textTransform: 'none' }}
-              >
-                {genre.name}
-              </Button>
             </Grid>
           ))}
         </Grid>
