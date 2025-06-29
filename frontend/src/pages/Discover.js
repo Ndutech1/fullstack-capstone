@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import MovieFilters from '../Components/MovieFilters';
 import { discoverMovies, searchMovies } from '../tmdb';
 import { AuthContext } from '../Authcontext';
@@ -21,12 +21,25 @@ export default function Discover() {
   const [movies, setMovies] = useState([]);
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const genreFromURL = searchParams.get('genre');
   const [filters, setFilters] = useState({
-    genre: '',
+    genre: genreFromURL || '',
     sortBy: '',
     year: '',
     rating: '',
   });
+
+  useEffect(() => {
+    setFilters((prev) => ({ ...prev, genre: genreFromURL || '' }));
+  }, [genreFromURL]);
+
+  useEffect(() => {
+    if (!query.trim()) {
+      handleSearch();
+    }
+    // eslint-disable-next-line
+  }, [filters]);
 
   const handleSearch = async () => {
     if (query.trim()) {
@@ -37,13 +50,6 @@ export default function Discover() {
       setMovies(results);
     }
   };
-
-  useEffect(() => {
-    if (!query.trim()) {
-      handleSearch();
-    }
-    // eslint-disable-next-line
-  }, [filters]);
 
   const handleFavorite = async (movie) => {
     try {
@@ -82,7 +88,11 @@ export default function Discover() {
             if (e.key === 'Enter') handleSearch();
           }}
         />
-        <Button variant="contained" sx={{ fontSize: {xs: '0.8rem', md: '1rem'}}} onClick={handleSearch}>
+        <Button
+          variant="contained"
+          sx={{ fontSize: { xs: '0.8rem', md: '1rem' } }}
+          onClick={handleSearch}
+        >
           Search
         </Button>
       </div>
@@ -99,11 +109,11 @@ export default function Discover() {
         ) : (
           movies.map((movie) => (
             <Grid item key={movie.id} xs={12} sm={6} md={4} lg={3}>
-              <Card sx={{ m:1}}>
+              <Card sx={{ m: 1 }}>
                 <Link to={`/movies/${movie.id}`} style={{ textDecoration: 'none' }}>
                   <CardMedia
                     component="img"
-                    sx={{ height: {xs: 200, md: 300} }}
+                    sx={{ height: { xs: 200, md: 300 } }}
                     image={
                       movie.poster_path
                         ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
@@ -113,7 +123,9 @@ export default function Discover() {
                   />
                 </Link>
                 <CardContent>
-                  <Typography variant="h6" sx={{ fontSize: { xs: '1.5rem', md: '2rem' } }}>{movie.title}</Typography>
+                  <Typography variant="h6" sx={{ fontSize: { xs: '1.5rem', md: '2rem' } }}>
+                    {movie.title}
+                  </Typography>
                   <Typography variant="body2">
                     Rating: {movie.vote_average}
                   </Typography>
@@ -130,7 +142,8 @@ export default function Discover() {
                   >
                     Save to Favorites
                   </Button>
-                  <Button sx={{ fontSize: { xs: '0.8rem', md: '1rem' }, mt: 1 }}
+                  <Button
+                    sx={{ fontSize: { xs: '0.8rem', md: '1rem' }, mt: 1 }}
                     onClick={() => handleAddToWatchlist(movie)}
                     startIcon={<BookmarkIcon />}
                     variant="outlined"

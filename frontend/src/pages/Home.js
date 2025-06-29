@@ -1,12 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, TextField, Button, Grid, Card, CardMedia, CardContent } from '@mui/material';
 import API from '../api'; // your axios instance for backend calls
-import { getPopularMovies } from '../tmdb'; // your TMDB helper
+import { getPopularMovies, getGenres } from '../tmdb';
 
 export default function Home() {
   const [prompt, setPrompt] = useState('');
   const [aiMovies, setAiMovies] = useState([]);
   const [popularMovies, setPopularMovies] = useState([]);
+  const [genres, setGenres] = useState([]);
+
+  useEffect(() => {
+    const fetchGenres = async () => {
+      const results = await getGenres();
+      setGenres(results);
+    };
+    fetchGenres();
+  }, []);
 
   useEffect(() => {
     const fetchPopular = async () => {
@@ -82,6 +91,23 @@ export default function Home() {
                   <Typography>{movie.title}</Typography>
                 </CardContent>
               </Card>
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
+
+      <Box sx={{ mt: 4 }}>
+        <Typography variant="h5">🎯 Explore by Genre</Typography>
+        <Grid container spacing={2} sx={{ mt: 2 }}>
+          {genres.map((genre) => (
+            <Grid item key={genre.id}>
+              <Button
+                variant="outlined"
+                href={`/discover?genre=${genre.id}`}
+                sx={{ textTransform: 'none' }}
+              >
+                {genre.name}
+              </Button>
             </Grid>
           ))}
         </Grid>
