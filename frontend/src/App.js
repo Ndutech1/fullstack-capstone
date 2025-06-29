@@ -1,0 +1,78 @@
+import React, { useState, useMemo } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Register from './pages/Register';
+import Login from './pages/Login';
+import Profile from './pages/Profile';
+import Discover from './pages/Discover';
+import Favorites from './pages/Favorites';
+import { AuthProvider } from './Authcontext';
+import ProtectedRoute from './Components/ProtectedRoute';
+import Navbar from './Components/Navbar';
+import MovieDetails from './pages/MovieDetails';
+import Watchlist from './pages/Watchlist';
+import Recommendations from './pages/Recommendations';
+import { ThemeProvider, CssBaseline } from '@mui/material';
+import { getTheme } from './theme';
+
+function App() {
+  const [mode, setMode] = useState('light');
+
+  const toggleMode = () => {
+    setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
+  };
+
+  // Memoize theme to avoid unnecessary re-renders
+  const theme = useMemo(() => getTheme(mode), [mode]);
+
+  return (
+    <AuthProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Router>
+          <Navbar mode={mode} toggleMode={toggleMode} />
+          <Routes>
+            <Route path="/" element={<h1>ON CONSTRUCTION</h1>} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/discover" element={<Discover />} />
+            <Route path="/movies/:id" element={<MovieDetails />} />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/favorites"
+              element={
+                <ProtectedRoute>
+                  <Favorites />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/recommendations"
+              element={
+                <ProtectedRoute>
+                  <Recommendations />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/watchlist"
+              element={
+                <ProtectedRoute>
+                  <Watchlist />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </Router>
+      </ThemeProvider>
+    </AuthProvider>
+  );
+}
+
+export default App;
