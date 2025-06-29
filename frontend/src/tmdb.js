@@ -44,11 +44,9 @@ export const getTrailers = async (movieId) => {
     const res = await tmdb.get(`/movie/${movieId}/videos`, {
       params: { api_key: API_KEY },
     });
-
     const filtered = res.data.results.filter(
       (v) => v.site === 'YouTube' && v.type === 'Trailer'
     );
-
     return filtered;
   } catch (error) {
     console.error('Error fetching trailers:', error);
@@ -68,4 +66,12 @@ export const discoverMovies = async (filters) => {
     },
   });
   return res.data.results;
+};
+
+// 🎭 Get list of movie genres
+export const getGenres = async () => {
+  const res = await tmdb.get('/genre/movie/list', {
+    params: { api_key: API_KEY },
+  });
+  return res.data.genres;
 };
