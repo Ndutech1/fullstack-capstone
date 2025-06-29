@@ -29,12 +29,14 @@ connectDB().catch(err => {
 });
 
 // Routes
+const aiRoutes = require('./routes/ai');
 const favoriteRoutes = require('./routes/favorites');
 const watchlistRoutes = require('./routes/watchlist');
 const reviewRoutes = require('./routes/reviews');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 
+app.use('/api/ai', aiRoutes);
 app.use('/api/favorites', favoriteRoutes);
 app.use('/api/watchlist', watchlistRoutes);
 app.use('/api/reviews', reviewRoutes);

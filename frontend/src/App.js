@@ -1,17 +1,20 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ThemeProvider, CssBaseline } from '@mui/material';
+
 import Register from './pages/Register';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
+import Home from './pages/Home';
 import Discover from './pages/Discover';
 import Favorites from './pages/Favorites';
-import { AuthProvider } from './Authcontext';
-import ProtectedRoute from './Components/ProtectedRoute';
-import Navbar from './Components/Navbar';
 import MovieDetails from './pages/MovieDetails';
 import Watchlist from './pages/Watchlist';
 import Recommendations from './pages/Recommendations';
-import { ThemeProvider, CssBaseline } from '@mui/material';
+
+import { AuthProvider } from './Authcontext';
+import ProtectedRoute from './Components/ProtectedRoute';
+import Navbar from './Components/Navbar';
 import { getTheme } from './theme';
 
 function App() {
@@ -21,7 +24,6 @@ function App() {
     setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
   };
 
-  // Memoize theme to avoid unnecessary re-renders
   const theme = useMemo(() => getTheme(mode), [mode]);
 
   return (
@@ -31,7 +33,15 @@ function App() {
         <Router>
           <Navbar mode={mode} toggleMode={toggleMode} />
           <Routes>
-            <Route path="/" element={<h1>ON CONSTRUCTION</h1>} />
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Home />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/home" element={<Home />} />
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
             <Route path="/discover" element={<Discover />} />
