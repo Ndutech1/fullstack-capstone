@@ -70,7 +70,7 @@ export default function Home() {
   return (
     <Box sx={{ p: 4 }}>
       <Typography variant="h3" gutterBottom>
-      <link rel="apple-touch-icon" href="/logo.ico" > Welcome to MovieApp</link>
+      <link rel="apple-touch-icon" href="/logo.ico" /> Welcome to MovieApp
       </Typography>
 
       {/* AI Movie Suggestion */}
