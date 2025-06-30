@@ -10,7 +10,7 @@ const User = require('../Models/User');
 // Setup Brevo (Sendinblue) API client
 const client = sib.ApiClient.instance;
 client.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
-const sender = { email: 'your_email@domain.com', name: 'Movie App' };
+const sender = { email: 'ndutechcompcity@gmail.com', name: 'Moodie' };
 
 // Forgot Password Route
 router.post('/forgot-password', async (req, res) => {
