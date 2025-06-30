@@ -42,6 +42,8 @@ app.use('/api/watchlist', watchlistRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/uploads', express.static('uploads'));
+
 
 // Start server
 const PORT = process.env.PORT || 5000;

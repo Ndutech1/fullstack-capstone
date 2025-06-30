@@ -1,19 +1,20 @@
 const express = require('express');
+const multer = require('multer');
+const auth = require('../middleware/auth.js');
+const User = require('../Models/User.js');
+const Review = require('../Models/Review.js');
+
 const router = express.Router();
-const auth = require('../middleware/auth');
-const User = require('../Models/User');
-const Review = require('../Models/Review'); // don't forget to import
+const upload = multer({ dest: 'uploads/' }); // Adjust as needed
 
 // Get current user's profile data
 router.get('/me', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
-
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Get reviews by the user
     const reviews = await Review.find({ userId: user._id });
 
     res.json({
@@ -34,16 +35,14 @@ router.get('/me', auth, async (req, res) => {
   }
 });
 
-
-// ✅ Profile Update Route
-router.put('/me', auth, async (req, res) => {
+// Profile Update Route (supports JSON and file upload)
+router.put('/me', auth, upload.single('image'), async (req, res) => {
   try {
-    const { name, image } = req.body;
+    const { name } = req.body;
+    const image = req.file ? `/uploads/${req.file.filename}` : req.body.image;
 
     const user = await User.findById(req.user.id);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
     if (name) user.name = name;
     if (image) user.image = image;

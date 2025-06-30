@@ -2,10 +2,11 @@ import { useEffect, useState, useContext } from 'react';
 import API from '../api';
 import {
   Container, Typography, Box, Grid, Card, CardMedia, CardContent, Avatar, Button,
-  TextField, Paper, Divider, Alert
+  TextField, Paper, Divider, Alert, IconButton
 } from '@mui/material';
 import { AuthContext } from '../Authcontext';
 import EditIcon from '@mui/icons-material/Edit';
+import UploadIcon from '@mui/icons-material/Upload';
 
 export default function Profile() {
   const [data, setData] = useState(null);
@@ -13,7 +14,8 @@ export default function Profile() {
 
   const [editMode, setEditMode] = useState(false);
   const [updatedName, setUpdatedName] = useState('');
-  const [updatedImage, setUpdatedImage] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewURL, setPreviewURL] = useState('');
   const [msg, setMsg] = useState('');
 
   useEffect(() => {
@@ -22,7 +24,7 @@ export default function Profile() {
         const res = await API.get('/users/me');
         setData(res.data);
         setUpdatedName(res.data.user.name);
-        setUpdatedImage(res.data.user.image || '');
+        setPreviewURL(res.data.user.image || '');
       } catch (err) {
         console.error('Error fetching profile:', err);
       }
@@ -36,10 +38,16 @@ export default function Profile() {
 
   const handleUpdate = async () => {
     try {
-      const res = await API.put('/users/me', {
-        name: updatedName,
-        image: updatedImage,
+      const formData = new FormData();
+      formData.append('name', updatedName);
+      if (selectedFile) {
+        formData.append('image', selectedFile);
+      }
+
+      const res = await API.put('/users/me', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
+
       setData({ ...data, user: res.data });
       login(res.data, localStorage.getItem('token'));
       setEditMode(false);
@@ -50,20 +58,26 @@ export default function Profile() {
     }
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setSelectedFile(file);
+    setPreviewURL(URL.createObjectURL(file));
+  };
+
   return (
     <Container sx={{ mt: 4 }}>
-      <Paper sx={{ p: 3, mb: 4 }}>
+      <Paper elevation={3} sx={{ p: 3, mb: 4, bgcolor: 'background.paper' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Avatar
-            src={userInfo.image || `https://ui-avatars.com/api/?name=${userInfo.username}`}
+            src={previewURL || `https://ui-avatars.com/api/?name=${userInfo.username}`}
             sx={{ width: 80, height: 80 }}
           />
           <Box>
-            <Typography variant="h5">{userInfo.username}</Typography>
+            <Typography variant="h5" fontWeight="bold">{userInfo.username}</Typography>
             <Typography color="textSecondary">{userInfo.email}</Typography>
           </Box>
           <Button
-            variant="outlined"
+            variant="contained"
             startIcon={<EditIcon />}
             sx={{ ml: 'auto' }}
             onClick={() => setEditMode(!editMode)}
@@ -81,13 +95,18 @@ export default function Profile() {
               sx={{ my: 1 }}
               onChange={(e) => setUpdatedName(e.target.value)}
             />
-            <TextField
-              fullWidth
-              label="Profile Image URL"
-              value={updatedImage}
+            <Button
+              component="label"
+              variant="outlined"
+              startIcon={<UploadIcon />}
               sx={{ my: 1 }}
-              onChange={(e) => setUpdatedImage(e.target.value)}
-            />
+            >
+              Choose Image
+              <input type="file" hidden accept="image/*" onChange={handleFileChange} />
+            </Button>
+            {previewURL && (
+              <Avatar src={previewURL} sx={{ width: 80, height: 80, my: 1 }} />
+            )}
             <Button variant="contained" color="primary" onClick={handleUpdate} sx={{ mt: 1 }}>
               Save Changes
             </Button>
@@ -97,81 +116,52 @@ export default function Profile() {
         {msg && <Alert sx={{ mt: 2 }}>{msg}</Alert>}
       </Paper>
 
-      {/* Favorites Section */}
+      {/* Favorites */}
       <Box sx={{ mt: 4 }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>Your Favorites</Typography>
-        {favorites.length === 0 ? (
-          <Typography>No favorite movies yet.</Typography>
-        ) : (
-          <Grid container spacing={2}>
-            {favorites.map((movie, index) => (
-              <Grid item key={index} xs={12} sm={6} md={4} lg={3}>
-                <Card sx={{ m: 1 }}>
-                  <CardMedia
-                    component="img"
-                    image={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                    sx={{ height: { xs: 200, md: 300 } }}
-                    alt={movie.title}
-                  />
-                  <CardContent>
-                    <Typography>{movie.title}</Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        )}
+        <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>Your Favorites</Typography>
+        <Grid container spacing={2}>
+          {favorites.length === 0 ? (
+            <Typography>No favorite movies yet.</Typography>
+          ) : favorites.map((movie, index) => (
+            <Grid item key={index} xs={12} sm={6} md={4} lg={3}>
+              <Card sx={{ m: 1, boxShadow: 3 }}>
+                <CardMedia
+                  component="img"
+                  image={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                  sx={{ height: { xs: 200, md: 300 } }}
+                  alt={movie.title}
+                />
+                <CardContent>
+                  <Typography variant="body1" fontWeight="bold">{movie.title}</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
       </Box>
 
-      {/* Watchlist Section */}
+      {/* Watchlist */}
       <Box sx={{ mt: 4 }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>Your Watchlist</Typography>
-        {watchlist.length === 0 ? (
-          <Typography>No movies in your watchlist.</Typography>
-        ) : (
-          <Grid container spacing={2}>
-            {watchlist.map((movie, index) => (
-              <Grid item key={index} xs={12} sm={6} md={4} lg={3}>
-                <Card sx={{ m: 1 }}>
-                  <CardMedia
-                    component="img"
-                    image={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                    sx={{ height: { xs: 200, md: 300 } }}
-                    alt={movie.title}
-                  />
-                  <CardContent>
-                    <Typography>{movie.title}</Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        )}
-      </Box>
-
-      {/* Reviews Section */}
-      <Box sx={{ mt: 4 }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>Your Reviews</Typography>
-        {reviews.length === 0 ? (
-          <Typography>No reviews yet.</Typography>
-        ) : (
-          reviews.map((rev) => (
-            <Box
-              key={rev._id}
-              sx={{
-                mb: 2,
-                p: 2,
-                border: '1px solid #ddd',
-                borderRadius: 2,
-              }}
-            >
-              <Typography variant="subtitle2">{rev.movieTitle}</Typography>
-              <Typography variant="body2">
-                ⭐ {rev.rating} — {rev.text}
-              </Typography>
-            </Box>
-          ))
-        )}
+        <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>Your Watchlist</Typography>
+        <Grid container spacing={2}>
+          {watchlist.length === 0 ? (
+            <Typography>No movies in your watchlist.</Typography>
+          ) : watchlist.map((movie, index) => (
+            <Grid item key={index} xs={12} sm={6} md={4} lg={3}>
+              <Card sx={{ m: 1, boxShadow: 3 }}>
+                <CardMedia
+                  component="img"
+                  image={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                  sx={{ height: { xs: 200, md: 300 } }}
+                  alt={movie.title}
+                />
+                <CardContent>
+                  <Typography variant="body1" fontWeight="bold">{movie.title}</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
       </Box>
     </Container>
   );
