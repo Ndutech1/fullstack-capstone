@@ -1,211 +1,140 @@
 import { useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Button,
-  Drawer,
-  IconButton,
-  Box,
-  Tooltip,
+  AppBar, Toolbar, Typography, Button, Drawer, IconButton, Box, Tooltip, Divider
 } from '@mui/material';
 import { AuthContext } from '../Authcontext';
 import MenuIcon from '@mui/icons-material/Menu';
-import { Brightness4, Brightness7 } from '@mui/icons-material';
+import { Brightness4, Brightness7, Favorite, Bookmark, AccountCircle, Logout, Movie } from '@mui/icons-material';
 
 export default function Navbar({ mode, toggleMode }) {
   const { user, logout } = useContext(AuthContext);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <AppBar position="static">
+    <AppBar position="sticky" color="primary" elevation={4}>
       <Toolbar>
         <Typography
-          variant="h6"
-          sx={{ flexGrow: 1, fontSize: { xs: '1.5rem', md: '2rem' } }}
-        >
-         Moodie
-        </Typography>
-
-        <Button
-          color="primary"
-          variant="contained"
-          sx={{ fontSize: { mx:1} }}
+          variant="h5"
+          sx={{
+            flexGrow: 1,
+            fontWeight: 'bold',
+            textDecoration: 'none',
+            color: 'inherit',
+            cursor: 'pointer',
+          }}
           component={Link}
           to="/"
         >
-          Home
-        </Button>
-        <Button
-          color="primary"
-          variant="contained"
-          sx={{ fontSize: { mx:1 } }}
-          component={Link}
-          to="/discover"
-        >
-          Discover
-        </Button>
+          🎬 Moodie
+        </Typography>
 
-        {user ? (
-          <>
-            {/* Mobile menu button */}
-            <IconButton
-              color="inherit"
-              edge="start"
-              sx={{ display: { md: 'none' } }}
-              onClick={() => setMobileOpen(true)}
-            >
-              <MenuIcon />
-            </IconButton>
+        {/* Desktop Links */}
+        <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2 }}>
+          <Button component={Link} to="/" color="inherit">Home</Button>
+          <Button component={Link} to="/discover" color="inherit">Discover</Button>
 
-            {/* Drawer for mobile */}
-            <Drawer
-              anchor="left"
-              open={mobileOpen}
-              onClose={() => setMobileOpen(false)}
-            >
-              <Box sx={{ width: 200, p: 2 }}>
-                <Button
-                  variant="contained"
-                  sx={{
-                    bgcolor: 'primary.main',
-                    '&:hover': { bgcolor: 'primary.dark' },
-                  }}
-                  component={Link}
-                  to="/favorites"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  Favorites
-                </Button>
-                <Button
-                  variant="contained"
-                  sx={{
-                    bgcolor: 'primary.main',
-                    '&:hover': { bgcolor: 'primary.dark' },
-                  }}
-                  component={Link}
-                  to="/watchlist"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  Watchlist
-                </Button>
-                <Button
-                  color="primary"
-                  variant="contained"
-                  sx={{ mx: 1 }}
-                  component={Link}
-                  to="/recommendations"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  Recommendation
-                </Button>
-                <Button
-                  color="primary"
-                  variant="contained"
-                  sx={{ mx: 1 }}
-                  component={Link}
-                  to="/profile"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  Profile
-                </Button>
-                <Button
-                  color="secondary"
-                  variant="outlined"
-                  sx={{ mx: 1 }}
-                  onClick={() => {
-                    logout();
-                    setMobileOpen(false);
-                  }}
-                >
-                  Logout
-                </Button>
-              </Box>
-            </Drawer>
-
-            {/* Desktop menu */}
-            <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-              <Button
-                variant="contained"
-                sx={{
-                  bgcolor: 'primary.main',
-                  '&:hover': { bgcolor: 'primary.dark' },
-                }}
-                component={Link}
-                to="/favorites"
-              >
+          {user && (
+            <>
+              <Button component={Link} to="/favorites" color="inherit" startIcon={<Favorite />}>
                 Favorites
               </Button>
-              <Button
-                variant="contained"
-                sx={{
-                  bgcolor: 'primary.main',
-                  '&:hover': { bgcolor: 'primary.dark' },
-                }}
-                component={Link}
-                to="/watchlist"
-              >
+              <Button component={Link} to="/watchlist" color="inherit" startIcon={<Bookmark />}>
                 Watchlist
               </Button>
-              <Button
-                color="primary"
-                variant="contained"
-                sx={{ mx: 1 }}
-                component={Link}
-                to="/recommendations"
-              >
+              <Button component={Link} to="/recommendations" color="inherit">
                 Recommendation
               </Button>
-              <Button
-                color="primary"
-                variant="contained"
-                sx={{ mx: 1 }}
-                component={Link}
-                to="/profile"
-              >
+              <Button component={Link} to="/profile" color="inherit" startIcon={<AccountCircle />}>
                 Profile
               </Button>
               <Button
                 color="secondary"
                 variant="outlined"
-                sx={{ mx: 1 }}
                 onClick={logout}
+                sx={{ ml: 1 }}
               >
                 Logout
               </Button>
-            </Box>
-          </>
-        ) : (
-          <>
-            <Button
-              color="primary"
-              variant="contained"
-              sx={{ fontSize: { xs: '0.8rem', md: '1rem' } }}
-              component={Link}
-              to="/login"
-            >
-              Login
-            </Button>
-            <Button
-              color="primary"
-              variant="contained"
-              sx={{ fontSize: { xs: '0.8rem', md: '1rem' } }}
-              component={Link}
-              to="/register"
-            >
-              Register
-            </Button>
-          </>
-        )}
+            </>
+          )}
 
-        {/* Theme toggle button */}
+          {!user && (
+            <>
+              <Button component={Link} to="/login" color="inherit">Login</Button>
+              <Button component={Link} to="/register" color="inherit">Register</Button>
+            </>
+          )}
+        </Box>
+
+        {/* Mobile Menu Button */}
+        <IconButton
+          color="inherit"
+          sx={{ display: { md: 'none' } }}
+          onClick={() => setMobileOpen(true)}
+        >
+          <MenuIcon />
+        </IconButton>
+
+        {/* Theme Toggle */}
         <Tooltip title={`Switch to ${mode === 'light' ? 'Dark' : 'Light'} Mode`}>
           <IconButton color="inherit" onClick={toggleMode}>
             {mode === 'light' ? <Brightness4 /> : <Brightness7 />}
           </IconButton>
         </Tooltip>
       </Toolbar>
+
+      {/* Mobile Drawer */}
+      <Drawer anchor="right" open={mobileOpen} onClose={() => setMobileOpen(false)}>
+        <Box sx={{ width: 250, p: 2 }}>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            Moodie Menu
+          </Typography>
+          <Divider sx={{ mb: 2 }} />
+          <Button fullWidth component={Link} to="/" onClick={() => setMobileOpen(false)}>
+            Home
+          </Button>
+          <Button fullWidth component={Link} to="/discover" onClick={() => setMobileOpen(false)}>
+            Discover
+          </Button>
+          {user ? (
+            <>
+              <Button fullWidth startIcon={<Favorite />} component={Link} to="/favorites" onClick={() => setMobileOpen(false)}>
+                Favorites
+              </Button>
+              <Button fullWidth startIcon={<Bookmark />} component={Link} to="/watchlist" onClick={() => setMobileOpen(false)}>
+                Watchlist
+              </Button>
+              <Button fullWidth component={Link} to="/recommendations" onClick={() => setMobileOpen(false)}>
+                Recommendation
+              </Button>
+              <Button fullWidth startIcon={<AccountCircle />} component={Link} to="/profile" onClick={() => setMobileOpen(false)}>
+                Profile
+              </Button>
+              <Button
+                fullWidth
+                color="secondary"
+                startIcon={<Logout />}
+                onClick={() => {
+                  logout();
+                  setMobileOpen(false);
+                }}
+              >
+                Logout
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button fullWidth component={Link} to="/login" onClick={() => setMobileOpen(false)}>
+                Login
+              </Button>
+              <Button fullWidth component={Link} to="/register" onClick={() => setMobileOpen(false)}>
+                Register
+              </Button>
+            </>
+          )}
+        </Box>
+      </Drawer>
     </AppBar>
   );
 }

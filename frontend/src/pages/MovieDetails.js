@@ -12,7 +12,8 @@ import {
   TextField,
   Rating,
   Button,
-  Box
+  Box,
+  Paper,
 } from '@mui/material';
 import ReactPlayer from 'react-player';
 
@@ -26,31 +27,21 @@ export default function MovieDetails() {
   const { user } = useContext(AuthContext);
 
   useEffect(() => {
-    async function fetchMovie() {
-      const data = await getMovieDetails(id);
-      setMovie(data);
-    }
-    fetchMovie();
-  }, [id]);
-
-  useEffect(() => {
-    const fetchTrailers = async () => {
-      const vids = await getTrailers(id);
-      console.log('fetched trailers:', vids);
-      setTrailers(vids);
+    const fetchData = async () => {
+      const movieData = await getMovieDetails(id);
+      setMovie(movieData);
+      const trailerData = await getTrailers(id);
+      setTrailers(trailerData);
+      const reviewRes = await API.get(`/api/reviews/${id}`);
+      setReviews(reviewRes.data);
     };
-    fetchTrailers();
-  }, [id]);
-
-  useEffect(() => {
-    const fetchReviews = async () => {
-      const res = await API.get(`/api/reviews/${id}`);
-      setReviews(res.data);
-    };
-    fetchReviews();
+    fetchData();
   }, [id]);
 
   const handleSubmitReview = async () => {
+    if (rating === 0 || text.trim() === '') {
+      return alert('Please provide a rating and review text.');
+    }
     try {
       const res = await API.post('/api/reviews', {
         movieId: id,
@@ -58,45 +49,46 @@ export default function MovieDetails() {
         rating,
         text,
       });
-      setReviews([...reviews.filter(r => r.userId !== user.id), res.data]);
+      setReviews((prev) => [...prev.filter(r => r.userId !== user.id), res.data]);
       setText('');
       setRating(0);
-    } catch (err) {
+    } catch {
       alert('Login required to leave a review.');
     }
   };
 
-  if (!movie) return <CircularProgress />;
+  if (!movie) return (
+    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+      <CircularProgress />
+    </Box>
+  );
 
   return (
-    <Container maxWidth="md" sx={{ mt: 4 }}>
+    <Container maxWidth="md" sx={{ mt: 4, mb: 6 }}>
       <Grid container spacing={4}>
-        <Grid item xs={12} sm={6} md={4} lg={3}>
+        <Grid item xs={12} sm={5}>
           <CardMedia
-          sx={{ height: { xs: '300px', md: '400px' } }}
             component="img"
             image={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
             alt={movie.title}
+            sx={{ borderRadius: 2, boxShadow: 3 }}
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={4} lg={3}>
-          <Typography variant="h4" sx={{ fontSize: { xs: '1.5rem', md: '2rem' } }} gutterBottom>{movie.title}</Typography>
-          <Typography variant="subtitle1" sx={{ fontSize: { xs: '1rem', md: '1.25rem' } }} gutterBottom>
+        <Grid item xs={12} sm={7}>
+          <Typography variant="h4" gutterBottom>{movie.title}</Typography>
+          <Typography variant="subtitle1" gutterBottom>
             {movie.release_date} • {movie.runtime} mins
           </Typography>
-          <Typography variant="body1" component="p">{movie.overview}</Typography>
-          <Typography variant="body2">Rating: {movie.vote_average}</Typography>
-          <Typography variant="body2">
-            Genres: {movie.genres.map(g => g.name).join(', ')}
+          <Typography variant="body1" sx={{ mb: 2 }}>{movie.overview}</Typography>
+          <Typography variant="body2" sx={{ mb: 1 }}>
+            Average Rating: {movie.vote_average}
           </Typography>
-
+          <Typography variant="body2" sx={{ mb: 2 }}>
+            Genres: {movie.genres?.map(g => g.name).join(', ') || 'N/A'}
+          </Typography>
           <Button
-            variant="outlined"
-            sx={{ fontSize: {xs: '0.8rem', md: '1rem'}, mt: 2 }}
-            onClick={() => {
-              const el = document.getElementById('trailer-section');
-              if (el) el.scrollIntoView({ behavior: 'smooth' });
-            }}
+            variant="contained"
+            onClick={() => document.getElementById('trailer-section').scrollIntoView({ behavior: 'smooth' })}
           >
             Watch Trailer
           </Button>
@@ -105,12 +97,12 @@ export default function MovieDetails() {
 
       {/* Trailer Section */}
       <Box id="trailer-section" sx={{ mt: 6 }}>
-        <Typography variant="h6" gutterBottom>Watch Trailer</Typography>
+        <Typography variant="h5" gutterBottom>Official Trailers</Typography>
         {trailers.length === 0 ? (
-          <Typography color="textSecondary">No trailer available.</Typography>
+          <Typography>No trailers available.</Typography>
         ) : (
           trailers.map((t) => (
-            <Box key={t.key} sx={{ my: 2 }}>
+            <Paper key={t.key} sx={{ my: 2, p: 2, boxShadow: 2 }}>
               <Typography variant="subtitle2">{t.name}</Typography>
               <ReactPlayer
                 url={`https://www.youtube.com/watch?v=${t.key}`}
@@ -118,18 +110,19 @@ export default function MovieDetails() {
                 height="360px"
                 controls
               />
-            </Box>
+            </Paper>
           ))
         )}
       </Box>
 
       {/* Review Form */}
       {user && (
-        <Box sx={{ mt: 4 }}>
-          <Typography variant="h6" sx={{ fontSize: { xs: '1.5rem', md: '2rem' } }} >Leave a Review</Typography>
+        <Box sx={{ mt: 6 }}>
+          <Typography variant="h5" gutterBottom>Leave a Review</Typography>
           <Rating
             value={rating}
             onChange={(_, newValue) => setRating(newValue)}
+            sx={{ mb: 2 }}
           />
           <TextField
             fullWidth
@@ -137,26 +130,29 @@ export default function MovieDetails() {
             rows={3}
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="Write your thoughts..."
-            sx={{ mt: 1 }}
+            placeholder="Share your thoughts..."
+            sx={{ mb: 2 }}
           />
-          <Button variant="contained" sx={{ fontSize: { xs: '0.8rem', md: '1rem' } }} onClick={handleSubmitReview}>
+          <Button variant="contained" onClick={handleSubmitReview}>
             Submit Review
           </Button>
         </Box>
       )}
 
       {/* Reviews */}
-      <Box sx={{ mt: 4 }}>
-        <Typography variant="h6" sx={{ fontSize: { xs: '1.5rem', md: '2rem' } }} gutterBottom>User Reviews</Typography>
-        {reviews.length === 0 && <Typography>No reviews yet.</Typography>}
-        {reviews.map((rev) => (
-          <Box key={rev._id} sx={{ mb: 2, p: 2, border: '1px solid #ddd', borderRadius: 2 }}>
-            <Typography variant="subtitle2" sx={{ fontSize: { xs: '1rem', md: '1.25rem' } }}>{rev.username}</Typography>
-            <Rating value={rev.rating} readOnly />
-            <Typography variant="body2" sx={{ fontSize: { xs: '0.875rem', md: '1rem' } }} >{rev.text}</Typography>
-          </Box>
-        ))}
+      <Box sx={{ mt: 6 }}>
+        <Typography variant="h5" gutterBottom>User Reviews</Typography>
+        {reviews.length === 0 ? (
+          <Typography>No reviews yet.</Typography>
+        ) : (
+          reviews.map((rev) => (
+            <Paper key={rev._id} sx={{ p: 2, mb: 2, boxShadow: 1 }}>
+              <Typography variant="subtitle2">{rev.username}</Typography>
+              <Rating value={rev.rating} readOnly sx={{ mb: 1 }} />
+              <Typography variant="body2">{rev.text}</Typography>
+            </Paper>
+          ))
+        )}
       </Box>
     </Container>
   );
