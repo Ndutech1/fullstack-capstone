@@ -36,27 +36,30 @@ export default function Profile() {
 
   const { user: userInfo, favorites = [], watchlist = [], reviews = [] } = data;
 
-  const handleUpdate = async () => {
-    try {
-      const formData = new FormData();
-      formData.append('name', updatedName);
-      if (selectedFile) {
-        formData.append('image', selectedFile);
-      }
-
-      const res = await API.put('/users/me', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-
-      setData({ ...data, user: res.data });
-      login(res.data, localStorage.getItem('token'));
-      setEditMode(false);
-      setMsg('Profile updated successfully');
-    } catch (err) {
-      console.error(err);
-      setMsg('Failed to update profile');
+ const handleUpdate = async () => {
+  try {
+    const formData = new FormData();
+    formData.append('name', updatedName);
+    if (selectedFile) {
+      formData.append('image', selectedFile);
     }
-  };
+
+    await API.put('/users/me', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+
+    // Refetch profile to sync all data
+    const res = await API.get('/users/me');
+    setData(res.data);
+    login(res.data.user, localStorage.getItem('token'));
+    setEditMode(false);
+    setMsg('Profile updated successfully');
+  } catch (err) {
+    console.error(err);
+    setMsg('Failed to update profile');
+  }
+};
+
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];

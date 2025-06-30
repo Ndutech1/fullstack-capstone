@@ -5,15 +5,13 @@ const User = require('../Models/User.js');
 const Review = require('../Models/Review.js');
 
 const router = express.Router();
-const upload = multer({ dest: 'uploads/' }); // Adjust as needed
+const upload = multer({ dest: 'uploads/' }); // Adjust destination if needed
 
-// Get current user's profile data
+// Get current user's full profile
 router.get('/me', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
     const reviews = await Review.find({ userId: user._id });
 
@@ -35,7 +33,7 @@ router.get('/me', auth, async (req, res) => {
   }
 });
 
-// Profile Update Route (supports JSON and file upload)
+// Update Profile and Return Full Data
 router.put('/me', auth, upload.single('image'), async (req, res) => {
   try {
     const { name } = req.body;
@@ -49,12 +47,19 @@ router.put('/me', auth, upload.single('image'), async (req, res) => {
 
     await user.save();
 
+    const reviews = await Review.find({ userId: user._id });
+
     res.json({
-      id: user._id,
-      username: user.username,
-      email: user.email,
-      name: user.name,
-      image: user.image || '',
+      user: {
+        id: user._id,
+        name: user.name,
+        username: user.username,
+        email: user.email,
+        image: user.image || '',
+      },
+      favorites: user.favorites || [],
+      watchlist: user.watchlist || [],
+      reviews,
     });
   } catch (err) {
     console.error(err);
