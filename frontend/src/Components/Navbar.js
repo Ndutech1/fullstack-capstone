@@ -25,7 +25,9 @@ export default function Navbar({ mode, toggleMode }) {
           variant="h6"
           sx={{ flexGrow: 1, fontSize: { xs: '1.5rem', md: '2rem' } }}
         >
-          MOVIEVERSE
+         <link rel="apple-touch-icon" href="/logo.ico">
+         Moodie
+         </link>
         </Typography>
 
         <Button
