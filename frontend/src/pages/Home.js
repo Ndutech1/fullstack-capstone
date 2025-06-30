@@ -70,7 +70,7 @@ export default function Home() {
   return (
     <Box sx={{ p: 4 }}>
       <Typography variant="h3" gutterBottom>
-        <img src="public/logo.ico" alt="Moodie Logo" style={{ width: '40px', marginRight: '10px' }} /> Welcome to MovieApp
+        🎬 Welcome to Moodie
       </Typography>
 
       {/* AI Movie Suggestion */}
