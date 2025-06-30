@@ -8,7 +8,7 @@ import { ThemeProvider, CssBaseline } from '@mui/material';
 import theme from './theme';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 
-serviceWorkerRegistration.register();
+//serviceWorkerRegistration.register();
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
