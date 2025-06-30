@@ -11,6 +11,9 @@ import Favorites from './pages/Favorites';
 import MovieDetails from './pages/MovieDetails';
 import Watchlist from './pages/Watchlist';
 import Recommendations from './pages/Recommendations';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+
 
 import { AuthProvider } from './Authcontext';
 import ProtectedRoute from './Components/ProtectedRoute';
@@ -46,6 +49,9 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/discover" element={<Discover />} />
             <Route path="/movies/:id" element={<MovieDetails />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
+
             <Route
               path="/profile"
               element={
