@@ -32,7 +32,7 @@ export default function MovieDetails() {
       setMovie(movieData);
       const trailerData = await getTrailers(id);
       setTrailers(trailerData);
-      const reviewRes = await API.get(`/api/reviews/${id}`);
+      const reviewRes = await API.get(`/reviews/${id}`);
       setReviews(reviewRes.data);
     };
     fetchData();
