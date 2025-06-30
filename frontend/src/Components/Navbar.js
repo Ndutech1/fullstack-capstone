@@ -25,7 +25,6 @@ export default function Navbar({ mode, toggleMode }) {
           variant="h6"
           sx={{ flexGrow: 1, fontSize: { xs: '1.5rem', md: '2rem' } }}
         >
-        <link rel="icon" href="%PUBLIC_URL%/logo.ico" />
          Moodie
         </Typography>
 
