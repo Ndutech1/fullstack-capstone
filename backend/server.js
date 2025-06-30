@@ -1,8 +1,15 @@
 require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const path = require('path');
+
+// Connect to MongoDB
+const connectDB = require('./Config/db');
+connectDB().catch(err => {
+  console.error('MongoDB connection error:', err);
+  process.exit(1);
+});
 
 // Create Express app
 const app = express();
@@ -21,13 +28,6 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-// Connect to MongoDB
-const connectDB = require('./Config/db');
-connectDB().catch(err => {
-  console.error('MongoDB connection error:', err);
-  process.exit(1);
-});
-
 // Routes
 const aiRoutes = require('./routes/ai');
 const favoriteRoutes = require('./routes/favorites');
@@ -42,8 +42,7 @@ app.use('/api/watchlist', watchlistRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-app.use('/uploads', express.static('uploads'));
-
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Start server
 const PORT = process.env.PORT || 5000;

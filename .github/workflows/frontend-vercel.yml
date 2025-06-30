@@ -1,0 +1,30 @@
+name: Frontend Deploy to Vercel
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Install Dependencies
+        run: npm ci
+        working-directory: ./movie-app-frontend-main
+
+      - name: Build Project
+        run: npm run build
+        working-directory: ./movie-app-frontend-main
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./movie-app-frontend-main
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}

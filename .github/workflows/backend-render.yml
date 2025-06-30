@@ -1,0 +1,13 @@
+name: Backend Redeploy to Render
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  redeploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render Deploy
+        run: |
+          curl -X POST https://api.render.com/deploy/rnd_d9METsh3zNe9VBKgGTV4PYarmHWl?key=${{ secrets.RENDER_API_KEY }}
