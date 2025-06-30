@@ -43,7 +43,7 @@ export default function MovieDetails() {
       return alert('Please provide a rating and review text.');
     }
     try {
-      const res = await API.post('/api/reviews', {
+      const res = await API.post('/reviews', {
         movieId: id,
         movieTitle: movie.title,
         rating,
