@@ -25,7 +25,7 @@ export default function Navbar({ mode, toggleMode }) {
           variant="h6"
           sx={{ flexGrow: 1, fontSize: { xs: '1.5rem', md: '2rem' } }}
         >
-         <link rel="apple-touch-icon" href="/logo.ico" />
+         <img src="public/logo.jpg" alt="Moodie Logo" style={{ width: '50px', marginRight: '10px' }} />
          Moodie
         </Typography>
 
