@@ -1,13 +1,39 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, TextField, Button, Grid, Card, CardMedia, CardContent } from '@mui/material';
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Grid,
+  Card,
+  CardMedia,
+  CardContent,
+  CircularProgress,
+  Alert,
+} from '@mui/material';
 import API from '../api'; // your axios instance for backend calls
 import { getPopularMovies, getGenres } from '../tmdb';
+import Slider from 'react-slick';
+
+const carouselSettings = {
+  dots: true,
+  infinite: true,
+  speed: 500,
+  slidesToShow: 4,
+  slidesToScroll: 1,
+  responsive: [
+    { breakpoint: 900, settings: { slidesToShow: 2 } },
+    { breakpoint: 600, settings: { slidesToShow: 1 } },
+  ],
+};
 
 export default function Home() {
   const [prompt, setPrompt] = useState('');
   const [aiMovies, setAiMovies] = useState([]);
   const [popularMovies, setPopularMovies] = useState([]);
   const [genres, setGenres] = useState([]);
+  const [loadingAI, setLoadingAI] = useState(false);
+  const [aiError, setAiError] = useState('');
 
   useEffect(() => {
     const fetchGenres = async () => {
@@ -27,19 +53,27 @@ export default function Home() {
 
   const handleAIPrompt = async () => {
     if (!prompt) return;
+    setLoadingAI(true);
+    setAiError('');
+    setAiMovies([]);
     try {
       const res = await API.post('/ai/suggest', { prompt });
       setAiMovies(res.data.movies);
     } catch (err) {
       console.error(err);
-      alert('Failed to get AI suggestion');
+      setAiError('Failed to get movie suggestions. Try again.');
+    } finally {
+      setLoadingAI(false);
     }
   };
 
   return (
     <Box sx={{ p: 4 }}>
-      <Typography variant="h3" gutterBottom>🎬 Welcome to MovieApp</Typography>
+      <Typography variant="h3" gutterBottom>
+        🎬 Welcome to MovieApp
+      </Typography>
 
+      {/* AI Movie Suggestion */}
       <Box sx={{ mt: 4, mb: 4 }}>
         <Typography variant="h5">🧠 AI Movie Suggestion</Typography>
         <TextField
@@ -52,9 +86,15 @@ export default function Home() {
         <Button variant="contained" sx={{ mt: 2 }} onClick={handleAIPrompt}>
           Suggest Movies
         </Button>
+        {loadingAI && <CircularProgress sx={{ mt: 2 }} />}
+        {aiError && (
+          <Alert severity="error" sx={{ mt: 2 }}>
+            {aiError}
+          </Alert>
+        )}
       </Box>
 
-      {/* Moved Explore by Genre box here */}
+      {/* Explore by Genre */}
       <Box sx={{ mt: 4 }}>
         <Typography variant="h5">🎯 Explore by Genre</Typography>
         <Grid container spacing={2} sx={{ mt: 2 }}>
@@ -72,6 +112,7 @@ export default function Home() {
         </Grid>
       </Box>
 
+      {/* AI Suggested Movies */}
       {aiMovies.length > 0 && (
         <Box sx={{ mt: 4 }}>
           <Typography variant="h6">🎯 AI Suggested Movies:</Typography>
@@ -94,11 +135,12 @@ export default function Home() {
         </Box>
       )}
 
+      {/* Trending Movies (Carousel) */}
       <Box sx={{ mt: 4 }}>
         <Typography variant="h5">🔥 Trending Movies</Typography>
-        <Grid container spacing={2}>
+        <Slider {...carouselSettings} style={{ marginTop: 20 }}>
           {popularMovies.map((movie) => (
-            <Grid item xs={12} sm={6} md={3} key={movie.id}>
+            <Box key={movie.id} sx={{ p: 1 }}>
               <Card>
                 <CardMedia
                   component="img"
@@ -109,9 +151,9 @@ export default function Home() {
                   <Typography>{movie.title}</Typography>
                 </CardContent>
               </Card>
-            </Grid>
+            </Box>
           ))}
-        </Grid>
+        </Slider>
       </Box>
     </Box>
   );
