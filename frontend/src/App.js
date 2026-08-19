@@ -21,7 +21,7 @@ import Navbar from './Components/Navbar';
 import { getTheme } from './theme';
 
 function App() {
-  const [mode, setMode] = useState('light');
+  const [mode, setMode] = useState('dark');
 
   const toggleMode = () => {
     setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const Review = require('../Models/Review');
+const User = require('../Models/User');
 
 // Create or update review
 router.post('/', auth, async (req, res) => {
@@ -13,11 +14,14 @@ router.post('/', auth, async (req, res) => {
     review.rating = rating;
     review.text = text;
   } else {
+    const user = await User.findById(req.user.id).select('username');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
     review = new Review({
       movieId,
       movieTitle,
       userId: req.user.id,
-      username: req.user.username,
+      username: user.username,
       rating,
       text,
     });

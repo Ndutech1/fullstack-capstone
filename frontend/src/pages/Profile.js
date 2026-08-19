@@ -2,7 +2,7 @@ import { useEffect, useState, useContext } from 'react';
 import API from '../api';
 import {
   Container, Typography, Box, Grid, Card, CardMedia, CardContent, Avatar, Button,
-  TextField, Paper, Divider, Alert, IconButton
+  TextField, Paper, Alert
 } from '@mui/material';
 import { AuthContext } from '../Authcontext';
 import EditIcon from '@mui/icons-material/Edit';
@@ -10,7 +10,7 @@ import UploadIcon from '@mui/icons-material/Upload';
 
 export default function Profile() {
   const [data, setData] = useState(null);
-  const { user, login } = useContext(AuthContext);
+  const { login } = useContext(AuthContext);
 
   const [editMode, setEditMode] = useState(false);
   const [updatedName, setUpdatedName] = useState('');
@@ -34,7 +34,7 @@ export default function Profile() {
 
   if (!data) return <Typography>Loading...</Typography>;
 
-  const { user: userInfo, favorites = [], watchlist = [], reviews = [] } = data;
+  const { user: userInfo, favorites = [], watchlist = [] } = data;
 
  const handleUpdate = async () => {
   try {

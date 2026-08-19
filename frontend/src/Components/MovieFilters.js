@@ -1,89 +1,54 @@
-import { FormControl, InputLabel, Select, MenuItem, Box, Typography } from '@mui/material';
+import {
+  Box, Button, Chip, FormControl, InputLabel, MenuItem, Select, Stack, Typography,
+} from '@mui/material';
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
 
-const genres = [
-  { id: 28, name: 'Action' },
-  { id: 35, name: 'Comedy' },
-  { id: 18, name: 'Drama' },
-  { id: 27, name: 'Horror' },
-  { id: 10749, name: 'Romance' },
-  { id: 878, name: 'Sci-Fi' },
-  // Add more genres as needed
+export const movieGenres = [
+  { id: 28, name: 'Action' }, { id: 12, name: 'Adventure' }, { id: 16, name: 'Animation' },
+  { id: 35, name: 'Comedy' }, { id: 80, name: 'Crime' }, { id: 18, name: 'Drama' },
+  { id: 10751, name: 'Family' }, { id: 14, name: 'Fantasy' }, { id: 27, name: 'Horror' },
+  { id: 9648, name: 'Mystery' }, { id: 10749, name: 'Romance' }, { id: 878, name: 'Sci-Fi' },
+  { id: 53, name: 'Thriller' },
 ];
 
-export default function MovieFilters({ filters, onChange }) {
-  const handleChange = (e) => {
-    onChange({ ...filters, [e.target.name]: e.target.value });
-  };
+const sortOptions = [
+  { value: 'popularity.desc', label: 'Most popular' },
+  { value: 'vote_average.desc', label: 'Top rated' },
+  { value: 'primary_release_date.desc', label: 'Newest releases' },
+];
+
+export default function MovieFilters({ filters, onChange, onClear }) {
+  const updateFilter = (event) => onChange({ ...filters, [event.target.name]: event.target.value });
+  const selectedGenre = movieGenres.find((genre) => String(genre.id) === String(filters.genre));
+  const activeFilters = [
+    selectedGenre && { key: 'genre', label: selectedGenre.name },
+    filters.sortBy && { key: 'sortBy', label: sortOptions.find((option) => option.value === filters.sortBy)?.label },
+    filters.year && { key: 'year', label: filters.year },
+    filters.rating && { key: 'rating', label: `${filters.rating}+ rating` },
+  ].filter(Boolean);
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: 2,
-        mb: 3,
-        p: 2,
-        backgroundColor: 'background.paper',
-        borderRadius: 2,
-        boxShadow: 2,
-      }}
-    >
-      <Typography variant="h6" sx={{ width: '100%' }}>
-        Filter Movies
-      </Typography>
+    <Box className="discover-filter-panel">
+      <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" spacing={1.5} sx={{ mb: 2.5 }}>
+        <Box>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <FilterAltOutlinedIcon color="primary" />
+            <Typography variant="h6" fontWeight={800}>Refine your feed</Typography>
+          </Stack>
+          <Typography variant="body2" color="text.secondary">Pick a mood, year, rating, or sorting style.</Typography>
+        </Box>
+        {activeFilters.length > 0 && <Button onClick={onClear} startIcon={<RestartAltIcon />} size="small" sx={{ alignSelf: { xs: 'flex-start', sm: 'center' } }}>Clear all</Button>}
+      </Stack>
 
-      {/* Genre Filter */}
-      <FormControl sx={{ minWidth: 150, flex: 1 }}>
-        <InputLabel>Genre</InputLabel>
-        <Select name="genre" value={filters.genre} onChange={handleChange}>
-          <MenuItem value="">All</MenuItem>
-          {genres.map((g) => (
-            <MenuItem key={g.id} value={g.id}>
-              {g.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      <Box className="discover-filter-grid">
+        <FormControl fullWidth size="small"><InputLabel>Genre</InputLabel><Select name="genre" label="Genre" value={filters.genre} onChange={updateFilter}><MenuItem value="">Any genre</MenuItem>{movieGenres.map((genre) => <MenuItem key={genre.id} value={genre.id}>{genre.name}</MenuItem>)}</Select></FormControl>
+        <FormControl fullWidth size="small"><InputLabel>Sort by</InputLabel><Select name="sortBy" label="Sort by" value={filters.sortBy} onChange={updateFilter}><MenuItem value="">Recommended</MenuItem>{sortOptions.map((option) => <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>)}</Select></FormControl>
+        <FormControl fullWidth size="small"><InputLabel>Release year</InputLabel><Select name="year" label="Release year" value={filters.year} onChange={updateFilter}><MenuItem value="">Any year</MenuItem>{Array.from({ length: 15 }, (_, index) => new Date().getFullYear() - index).map((year) => <MenuItem key={year} value={year}>{year}</MenuItem>)}</Select></FormControl>
+        <FormControl fullWidth size="small"><InputLabel>Minimum rating</InputLabel><Select name="rating" label="Minimum rating" value={filters.rating} onChange={updateFilter}><MenuItem value="">Any rating</MenuItem>{Array.from({ length: 9 }, (_, index) => index + 1).map((rating) => <MenuItem key={rating} value={rating}>{rating}+ stars</MenuItem>)}</Select></FormControl>
+      </Box>
 
-      {/* Sort By Filter */}
-      <FormControl sx={{ minWidth: 150, flex: 1 }}>
-        <InputLabel>Sort By</InputLabel>
-        <Select name="sortBy" value={filters.sortBy} onChange={handleChange}>
-          <MenuItem value="">Default</MenuItem>
-          <MenuItem value="popularity.desc">Popularity</MenuItem>
-          <MenuItem value="vote_average.desc">Rating</MenuItem>
-          <MenuItem value="primary_release_date.desc">Release Date</MenuItem>
-        </Select>
-      </FormControl>
-
-      {/* Year Filter */}
-      <FormControl sx={{ minWidth: 120, flex: 1 }}>
-        <InputLabel>Year</InputLabel>
-        <Select name="year" value={filters.year} onChange={handleChange}>
-          <MenuItem value="">All</MenuItem>
-          {[...Array(15)].map((_, i) => {
-            const year = 2025 - i;
-            return (
-              <MenuItem key={year} value={year}>
-                {year}
-              </MenuItem>
-            );
-          })}
-        </Select>
-      </FormControl>
-
-      {/* Min Rating Filter */}
-      <FormControl sx={{ minWidth: 120, flex: 1 }}>
-        <InputLabel>Min Rating</InputLabel>
-        <Select name="rating" value={filters.rating} onChange={handleChange}>
-          <MenuItem value="">All</MenuItem>
-          {[...Array(9)].map((_, i) => (
-            <MenuItem key={i} value={i + 1}>
-              {i + 1}+
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      {activeFilters.length > 0 && <Stack direction="row" flexWrap="wrap" gap={1} sx={{ mt: 2.25 }}>{activeFilters.map((filter) => <Chip key={filter.key} label={filter.label} onDelete={() => onChange({ ...filters, [filter.key]: '' })} color="primary" variant="outlined" />)}</Stack>}
     </Box>
   );
 }

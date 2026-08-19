@@ -1,166 +1,27 @@
-import { useState, useEffect } from 'react';
-import {
-  Box, Typography, TextField, Button, Grid, Card, CardMedia, CardContent,
-  CircularProgress, Alert, Container
-} from '@mui/material';
-import API from '../api';
-import { getPopularMovies, getGenres } from '../tmdb';
-import Slider from 'react-slick';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
+import { Alert, Box, Button, Chip, CircularProgress, Container, InputAdornment, Skeleton, Stack, TextField, Typography } from '@mui/material';
+import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
+import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
+import PlayArrowRoundedIcon from '@mui/icons-material/PlayArrowRounded';
+import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
+import { Link } from 'react-router-dom';
+import API from '../api';
+import { getGenres, getPopularMovies } from '../tmdb';
+import './Home.css';
 
-const carouselSettings = {
-  dots: true,
-  infinite: true,
-  speed: 500,
-  slidesToShow: 4,
-  slidesToScroll: 1,
-  responsive: [
-    { breakpoint: 900, settings: { slidesToShow: 2 } },
-    { breakpoint: 600, settings: { slidesToShow: 1 } },
-  ],
-};
+const posterUrl = (path) => path ? `https://image.tmdb.org/t/p/w500${path}` : 'https://placehold.co/500x750/151525/E6E1E5?text=Moodie';
+function PosterCard({ movie, reason }) { return <motion.article className="home-poster-card" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -7 }}><Link to={`/movies/${movie.id}`}><img src={posterUrl(movie.poster_path)} alt={movie.title} loading="lazy" /><Box className="home-poster-card__shade" /><Box className="home-poster-card__content"><Typography fontWeight={800} noWrap>{movie.title}</Typography>{reason && <Typography variant="caption">{reason}</Typography>}<Stack direction="row" alignItems="center" spacing={.4}><PlayArrowRoundedIcon fontSize="small" /><Typography variant="caption">Details & trailer</Typography></Stack></Box></Link></motion.article>; }
 
 export default function Home() {
-  const [prompt, setPrompt] = useState('');
-  const [aiMovies, setAiMovies] = useState([]);
-  const [popularMovies, setPopularMovies] = useState([]);
-  const [genres, setGenres] = useState([]);
-  const [loadingAI, setLoadingAI] = useState(false);
-  const [aiError, setAiError] = useState('');
-
-  useEffect(() => {
-    getGenres().then(setGenres);
-    getPopularMovies().then(setPopularMovies);
-  }, []);
-
-  const handleAIPrompt = async () => {
-    if (!prompt) return;
-    setLoadingAI(true);
-    setAiError('');
-    setAiMovies([]);
-    try {
-      const res = await API.post('/ai/suggest', { prompt });
-      setAiMovies(res.data.movies);
-    } catch (err) {
-      console.error(err);
-      setAiError('Failed to get movie suggestions. Try again.');
-    } finally {
-      setLoadingAI(false);
-    }
-  };
-
-  return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #3f51b5 30%, #f50057 90%)',
-        py: 6,
-        color: 'white',
-      }}
-    >
-      <Container>
-        <motion.div initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-          <Typography variant="h3" align="center" gutterBottom>
-            🎬 Welcome to Moodie
-          </Typography>
-        </motion.div>
-
-        {/* AI Movie Suggestion */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-          <Box sx={{ mt: 4, mb: 4, textAlign: 'center' }}>
-            <Typography variant="h5">🧠 AI Movie Suggestions</Typography>
-            <TextField
-              fullWidth
-              placeholder="Describe what you're in the mood for..."
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              sx={{ mt: 2, background: 'white', borderRadius: 1 }}
-            />
-            <Button variant="contained" color="secondary" sx={{ mt: 2 }} onClick={handleAIPrompt}>
-              Suggest Movies
-            </Button>
-            {loadingAI && <CircularProgress sx={{ mt: 2 }} />}
-            {aiError && <Alert severity="error" sx={{ mt: 2 }}>{aiError}</Alert>}
-          </Box>
-        </motion.div>
-
-        {/* Explore by Genre */}
-        <Box sx={{ mt: 6 }}>
-          <Typography variant="h5" gutterBottom>🎯 Explore by Genre</Typography>
-          <Grid container spacing={2} sx={{ mt: 2 }}>
-            {genres.map((genre) => (
-              <Grid item key={genre.id}>
-                <Button
-                  variant="outlined"
-                  href={`/discover?genre=${genre.id}`}
-                  sx={{
-                    backgroundColor: 'rgba(255,255,255,0.1)',
-                    color: 'white',
-                    '&:hover': { backgroundColor: 'rgba(255,255,255,0.3)' },
-                    textTransform: 'none'
-                  }}
-                >
-                  {genre.name}
-                </Button>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
-
-        {/* AI Suggested Movies */}
-        {aiMovies.length > 0 && (
-          <Box sx={{ mt: 6 }}>
-            <Typography variant="h6" gutterBottom>🎯 AI Suggested Movies:</Typography>
-            <Grid container spacing={3}>
-              {aiMovies.map((movie) => (
-                <Grid item xs={12} sm={6} md={3} key={movie.id}>
-                  <Card
-                    sx={{
-                      transition: 'transform 0.3s, box-shadow 0.3s',
-                      '&:hover': { transform: 'scale(1.05)', boxShadow: 6 },
-                    }}
-                  >
-                    <CardMedia
-                      component="img"
-                      height="300"
-                      image={movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : 'https://via.placeholder.com/500x750?text=No+Image'}
-                    />
-                    <CardContent>
-                      <Typography>{movie.title}</Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          </Box>
-        )}
-
-        {/* Trending Movies Carousel */}
-        <Box sx={{ mt: 6 }}>
-          <Typography variant="h5" gutterBottom>🔥 Trending Movies</Typography>
-          <Slider {...carouselSettings} style={{ marginTop: 20 }}>
-            {popularMovies.map((movie) => (
-              <Box key={movie.id} sx={{ px: 1 }}>
-                <Card
-                  sx={{
-                    transition: 'transform 0.3s, box-shadow 0.3s',
-                    '&:hover': { transform: 'scale(1.05)', boxShadow: 6 },
-                  }}
-                >
-                  <CardMedia
-                    component="img"
-                    height="300"
-                    image={movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : 'https://via.placeholder.com/500x750?text=No+Image'}
-                  />
-                  <CardContent>
-                    <Typography>{movie.title}</Typography>
-                  </CardContent>
-                </Card>
-              </Box>
-            ))}
-          </Slider>
-        </Box>
-      </Container>
-    </Box>
-  );
+  const [prompt, setPrompt] = useState(''); const [aiMovies, setAiMovies] = useState([]); const [recommendations, setRecommendations] = useState([]); const [movies, setMovies] = useState([]); const [genres, setGenres] = useState([]); const [loadingAI, setLoadingAI] = useState(false); const [loading, setLoading] = useState(true); const [loadingMore, setLoadingMore] = useState(false); const [hasMore, setHasMore] = useState(true); const [page, setPage] = useState(1); const [aiError, setAiError] = useState(''); const sentinelRef = useRef(null);
+  const loadPopular = useCallback(async (nextPage = 1, append = false) => { if (append) setLoadingMore(true); else setLoading(true); try { const result = await getPopularMovies(nextPage); const incoming = result.results || []; setMovies((current) => append ? [...current, ...incoming.filter((movie) => !current.some((existing) => existing.id === movie.id))] : incoming); setPage(nextPage); setHasMore(nextPage < (result.total_pages || 1)); } finally { if (append) setLoadingMore(false); else setLoading(false); } }, []);
+  useEffect(() => { getGenres().then(setGenres).catch(() => setGenres([])); loadPopular(); }, [loadPopular]);
+  useEffect(() => { if (!hasMore || loading || loadingMore || !sentinelRef.current) return undefined; const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) loadPopular(page + 1, true); }, { rootMargin: '550px' }); observer.observe(sentinelRef.current); return () => observer.disconnect(); }, [hasMore, loadPopular, loading, loadingMore, page]);
+  const handleAIPrompt = async () => { if (!prompt.trim()) return; setLoadingAI(true); setAiError(''); setAiMovies([]); setRecommendations([]); try { const res = await API.post('/ai/suggest', { prompt }); setAiMovies(res.data.movies || []); setRecommendations(res.data.recommendations || []); } catch (error) { setAiError(error.response?.data?.message || 'Failed to get movie suggestions. Try again.'); } finally { setLoadingAI(false); } };
+  const reasonFor = (id) => aiMovies.find((movie) => movie.id === id)?.aiReason;
+  return <Box className="home-page"><Container maxWidth="xl" className="home-container"><motion.section className="home-hero" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}><Chip icon={<AutoAwesomeRoundedIcon />} label="MOODIE CURATOR" className="home-kicker" /><Typography component="h1">Your next favorite film is <em>one feeling away.</em></Typography><Typography className="home-hero__copy">Describe the moment. Moodie turns it into a thoughtful, spoiler-free movie shortlist made for you.</Typography><Box className="home-ai-box"><TextField fullWidth placeholder="Try “a clever, comforting mystery for a rainy night”" value={prompt} onChange={(event) => setPrompt(event.target.value)} onKeyDown={(event) => event.key === 'Enter' && handleAIPrompt()} InputProps={{ startAdornment: <InputAdornment position="start"><SearchRoundedIcon /></InputAdornment> }} /><Button variant="contained" onClick={handleAIPrompt} disabled={loadingAI} endIcon={loadingAI ? <CircularProgress size={16} color="inherit" /> : <AutoAwesomeRoundedIcon />}>Curate for me</Button></Box><Stack direction="row" flexWrap="wrap" justifyContent="center" gap={1} sx={{ mt: 2 }}>{['Smart sci-fi', 'Date-night drama', '90-minute thriller'].map((idea) => <Button key={idea} size="small" className="home-prompt-chip" onClick={() => setPrompt(idea)}>{idea}</Button>)}</Stack>{aiError && <Alert severity="error" sx={{ mt: 2 }}>{aiError}</Alert>}</motion.section>
+    {aiMovies.length > 0 && <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="home-ai-results"><Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ sm: 'end' }}><Box><Typography variant="overline" color="secondary">AI SHORTLIST</Typography><Typography variant="h4" fontWeight={900}>Made for this exact mood.</Typography></Box><Typography color="text.secondary">{recommendations.length} intentional picks</Typography></Stack><Box className="home-poster-grid">{aiMovies.map((movie) => <PosterCard key={movie.id} movie={movie} reason={reasonFor(movie.id)} />)}</Box></motion.section>}
+    <section className="home-genres"><Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ sm: 'center' }}><Box><Typography variant="overline" color="secondary">BROWSE BY MOOD</Typography><Typography variant="h4" fontWeight={900}>Explore every genre.</Typography></Box><Button component={Link} to="/discover" endIcon={<ArrowForwardRoundedIcon />}>See all films</Button></Stack><Box className="home-genre-list">{genres.map((genre) => <Chip key={genre.id} component={Link} to={`/discover?genre=${genre.id}`} clickable label={genre.name} />)}</Box></section>
+    <section className="home-popular"><Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ sm: 'end' }}><Box><Typography variant="overline" color="secondary">WHAT'S POPULAR</Typography><Typography variant="h4" fontWeight={900}>Trending right now.</Typography><Typography color="text.secondary">Keep scrolling—there is always another great story.</Typography></Box><Button component={Link} to="/discover" endIcon={<ArrowForwardRoundedIcon />}>Open discovery</Button></Stack><Box className="home-poster-grid">{movies.map((movie) => <PosterCard key={movie.id} movie={movie} />)}{loading && Array.from({ length: 10 }, (_, index) => <Skeleton key={index} variant="rectangular" className="home-card-skeleton" />)}</Box><Box ref={sentinelRef} sx={{ minHeight: 2 }} />{loadingMore && <Box className="home-poster-grid home-more-skeletons">{Array.from({ length: 5 }, (_, index) => <Skeleton key={index} variant="rectangular" className="home-card-skeleton" />)}</Box>}{!hasMore && <Typography align="center" color="text.secondary" sx={{ py: 5 }}>That is everything in this feed for now.</Typography>}</section></Container></Box>;
 }

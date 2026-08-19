@@ -1,6 +1,6 @@
 import { useState, useContext } from 'react';
 import {
-  TextField, Button, Container, Typography, Box, Paper, InputAdornment,
+  TextField, Button, Typography, Box, Paper, InputAdornment,
   IconButton, Alert, Link as MuiLink,
 } from '@mui/material';
 import { AccountCircle, Email, Lock, Person } from '@mui/icons-material';

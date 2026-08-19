@@ -1,7 +1,8 @@
+
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'https://fullstack-capstone-1w3v.onrender.com/api',
+  baseURL: 'https://fullstack-capstone-1w3v.onrender.com/api', 
   withCredentials: true, // optional, for cookies
 });
 

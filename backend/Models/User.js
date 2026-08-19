@@ -26,6 +26,10 @@ const userSchema = new mongoose.Schema(
       minlength: 6,
       select: false, // Hide password by default in queries
     },
+    image: {
+      type: String,
+      default: '',
+    },
   favorites: { 
     type: Array, 
     default: [] 

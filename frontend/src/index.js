@@ -3,23 +3,12 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { AuthProvider } from './Authcontext';
-import { ThemeProvider, CssBaseline } from '@mui/material';
-import theme from './theme';
-import * as serviceWorkerRegistration from './serviceWorkerRegistration';
-
-//serviceWorkerRegistration.register();
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <ThemeProvider theme={theme}>
-      <CssBaseline /> {/* Resets default browser styles */}
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    </ThemeProvider>
+    <App />
   </React.StrictMode>
 );
 

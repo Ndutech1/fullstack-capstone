@@ -1,140 +1,22 @@
 import { useContext, useState } from 'react';
-import { Link } from 'react-router-dom';
-import {
-  AppBar, Toolbar, Typography, Button, Drawer, IconButton, Box, Tooltip, Divider
-} from '@mui/material';
+import { Link, useLocation } from 'react-router-dom';
+import { AppBar, Box, Button, Divider, Drawer, IconButton, Stack, Toolbar, Tooltip, Typography } from '@mui/material';
+import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
+import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
+import ExploreRoundedIcon from '@mui/icons-material/ExploreRounded';
+import FavoriteBorderRoundedIcon from '@mui/icons-material/FavoriteBorderRounded';
+import BookmarkBorderRoundedIcon from '@mui/icons-material/BookmarkBorderRounded';
+import AccountCircleRoundedIcon from '@mui/icons-material/AccountCircleRounded';
+import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
+import LightModeRoundedIcon from '@mui/icons-material/LightModeRounded';
+import DarkModeRoundedIcon from '@mui/icons-material/DarkModeRounded';
 import { AuthContext } from '../Authcontext';
-import MenuIcon from '@mui/icons-material/Menu';
-import { Brightness4, Brightness7, Favorite, Bookmark, AccountCircle, Logout, Movie } from '@mui/icons-material';
+import './Navbar.css';
 
+const navItems = [{ to: '/', label: 'Home', icon: <AutoAwesomeRoundedIcon /> }, { to: '/discover', label: 'Discover', icon: <ExploreRoundedIcon /> }];
 export default function Navbar({ mode, toggleMode }) {
-  const { user, logout } = useContext(AuthContext);
-  const [mobileOpen, setMobileOpen] = useState(false);
-
-  return (
-    <AppBar position="sticky" color="primary" elevation={4}>
-      <Toolbar>
-        <Typography
-          variant="h5"
-          sx={{
-            flexGrow: 1,
-            fontWeight: 'bold',
-            textDecoration: 'none',
-            color: 'inherit',
-            cursor: 'pointer',
-          }}
-          component={Link}
-          to="/"
-        >
-          🎬 Moodie
-        </Typography>
-
-        {/* Desktop Links */}
-        <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2 }}>
-          <Button component={Link} to="/" color="inherit">Home</Button>
-          <Button component={Link} to="/discover" color="inherit">Discover</Button>
-
-          {user && (
-            <>
-              <Button component={Link} to="/favorites" color="inherit" startIcon={<Favorite />}>
-                Favorites
-              </Button>
-              <Button component={Link} to="/watchlist" color="inherit" startIcon={<Bookmark />}>
-                Watchlist
-              </Button>
-              <Button component={Link} to="/recommendations" color="inherit">
-                Recommendation
-              </Button>
-              <Button component={Link} to="/profile" color="inherit" startIcon={<AccountCircle />}>
-                Profile
-              </Button>
-              <Button
-                color="secondary"
-                variant="outlined"
-                onClick={logout}
-                sx={{ ml: 1 }}
-              >
-                Logout
-              </Button>
-            </>
-          )}
-
-          {!user && (
-            <>
-              <Button component={Link} to="/login" color="inherit">Login</Button>
-              <Button component={Link} to="/register" color="inherit">Register</Button>
-            </>
-          )}
-        </Box>
-
-        {/* Mobile Menu Button */}
-        <IconButton
-          color="inherit"
-          sx={{ display: { md: 'none' } }}
-          onClick={() => setMobileOpen(true)}
-        >
-          <MenuIcon />
-        </IconButton>
-
-        {/* Theme Toggle */}
-        <Tooltip title={`Switch to ${mode === 'light' ? 'Dark' : 'Light'} Mode`}>
-          <IconButton color="inherit" onClick={toggleMode}>
-            {mode === 'light' ? <Brightness4 /> : <Brightness7 />}
-          </IconButton>
-        </Tooltip>
-      </Toolbar>
-
-      {/* Mobile Drawer */}
-      <Drawer anchor="right" open={mobileOpen} onClose={() => setMobileOpen(false)}>
-        <Box sx={{ width: 250, p: 2 }}>
-          <Typography variant="h6" sx={{ mb: 2 }}>
-            Moodie Menu
-          </Typography>
-          <Divider sx={{ mb: 2 }} />
-          <Button fullWidth component={Link} to="/" onClick={() => setMobileOpen(false)}>
-            Home
-          </Button>
-          <Button fullWidth component={Link} to="/discover" onClick={() => setMobileOpen(false)}>
-            Discover
-          </Button>
-          {user ? (
-            <>
-              <Button fullWidth startIcon={<Favorite />} component={Link} to="/favorites" onClick={() => setMobileOpen(false)}>
-                Favorites
-              </Button>
-              <Button fullWidth startIcon={<Bookmark />} component={Link} to="/watchlist" onClick={() => setMobileOpen(false)}>
-                Watchlist
-              </Button>
-              <Button fullWidth component={Link} to="/recommendations" onClick={() => setMobileOpen(false)}>
-                Recommendation
-              </Button>
-              <Button fullWidth startIcon={<AccountCircle />} component={Link} to="/profile" onClick={() => setMobileOpen(false)}>
-                Profile
-              </Button>
-              <Button
-                fullWidth
-                color="secondary"
-                startIcon={<Logout />}
-                onClick={() => {
-                  logout();
-                  setMobileOpen(false);
-                }}
-              >
-                Logout
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button fullWidth component={Link} to="/login" onClick={() => setMobileOpen(false)}>
-                Login
-              </Button>
-              <Button fullWidth component={Link} to="/register" onClick={() => setMobileOpen(false)}>
-                Register
-              </Button>
-            </>
-          )}
-        </Box>
-      </Drawer>
-    </AppBar>
-  );
+  const { user, logout } = useContext(AuthContext); const { pathname } = useLocation(); const [mobileOpen, setMobileOpen] = useState(false);
+  const protectedItems = user ? [{ to: '/favorites', label: 'Favorites', icon: <FavoriteBorderRoundedIcon /> }, { to: '/watchlist', label: 'Watchlist', icon: <BookmarkBorderRoundedIcon /> }, { to: '/recommendations', label: 'For you', icon: <AutoAwesomeRoundedIcon /> }] : [];
+  const items = [...navItems, ...protectedItems]; const isActive = (to) => to === '/' ? pathname === '/' : pathname.startsWith(to); const close = () => setMobileOpen(false);
+  return <AppBar position="sticky" elevation={0} className="app-nav"><Toolbar className="app-nav__toolbar"><Typography component={Link} to="/" className="app-nav__brand"><Box className="app-nav__mark">M</Box><span>Moodie</span></Typography><Stack direction="row" spacing={.4} className="app-nav__links">{items.map((item) => <Button key={item.to} component={Link} to={item.to} className={isActive(item.to) ? 'app-nav__link app-nav__link--active' : 'app-nav__link'}>{item.label}</Button>)}</Stack><Box sx={{ flexGrow: 1 }} /><Tooltip title={`Switch to ${mode === 'light' ? 'dark' : 'light'} mode`}><IconButton onClick={toggleMode} className="app-nav__icon">{mode === 'light' ? <DarkModeRoundedIcon /> : <LightModeRoundedIcon />}</IconButton></Tooltip>{user ? <><Button component={Link} to="/profile" className="app-nav__profile" startIcon={<AccountCircleRoundedIcon />}>{user.username || 'Profile'}</Button><Tooltip title="Log out"><IconButton onClick={logout} className="app-nav__icon"><LogoutRoundedIcon /></IconButton></Tooltip></> : <Stack direction="row" spacing={.75} className="app-nav__auth"><Button component={Link} to="/login" className="app-nav__login">Log in</Button><Button component={Link} to="/register" variant="contained" className="app-nav__join">Join Moodie</Button></Stack>}<IconButton className="app-nav__menu" onClick={() => setMobileOpen(true)}><MenuRoundedIcon /></IconButton></Toolbar><Drawer anchor="right" open={mobileOpen} onClose={close} PaperProps={{ className: 'app-nav__drawer' }}><Box sx={{ p: 2.5, minWidth: 280 }}><Typography className="app-nav__brand"><Box className="app-nav__mark">M</Box><span>Moodie</span></Typography><Divider sx={{ my: 2 }} /><Stack spacing={.75}>{items.map((item) => <Button key={item.to} component={Link} to={item.to} onClick={close} startIcon={item.icon} className={isActive(item.to) ? 'app-nav__drawer-link app-nav__drawer-link--active' : 'app-nav__drawer-link'}>{item.label}</Button>)}{user && <Button component={Link} to="/profile" onClick={close} startIcon={<AccountCircleRoundedIcon />} className="app-nav__drawer-link">Profile</Button>}<Divider sx={{ my: 1 }} />{user ? <Button onClick={() => { logout(); close(); }} startIcon={<LogoutRoundedIcon />} className="app-nav__drawer-link">Log out</Button> : <><Button component={Link} to="/login" onClick={close} className="app-nav__drawer-link">Log in</Button><Button component={Link} to="/register" onClick={close} variant="contained">Join Moodie</Button></>}</Stack></Box></Drawer></AppBar>;
 }

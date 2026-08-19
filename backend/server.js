@@ -6,7 +6,7 @@ const path = require('path');
 
 // Connect to MongoDB
 const connectDB = require('./Config/db');
-connectDB().catch(err => {
+connectDB().catch((err) => {
   console.error('MongoDB connection error:', err);
   process.exit(1);
 });
@@ -18,15 +18,30 @@ const app = express();
 const allowedOrigins = [
   'https://frontend-liard-three-54.vercel.app',
   'http://localhost:3000',
-];
+  process.env.CLIENT_URL,
+].filter(Boolean);
 
 // Middleware
-app.use(cors({
-  origin: allowedOrigins,
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('CORS policy check failed'));
+      }
+    },
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 app.use(cookieParser());
+
+// Health Check
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'OK', message: 'Backend is running smoothly.' });
+});
 
 // Routes
 const aiRoutes = require('./routes/ai');
@@ -43,6 +58,12 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error('Unhandled Server Error:', err.stack);
+  res.status(500).json({ message: err.message || 'Internal Server Error' });
+});
 
 // Start server
 const PORT = process.env.PORT || 5000;

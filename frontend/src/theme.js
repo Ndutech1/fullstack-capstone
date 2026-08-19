@@ -1,59 +1,14 @@
 import { createTheme } from '@mui/material/styles';
 
-// Utility function to create a theme based on mode
-export const getTheme = (mode) =>
-  createTheme({
-    palette: {
-      mode,
-      primary: { main: '#1976d2' },
-      secondary: { main: '#ff4081' },
-      background: {
-        default: mode === 'light' ? '#f5f5f5' : '#121212',
-      },
-    },
-  });
-
-// Default theme (light mode)
-const theme = createTheme({
+export const getTheme = (mode) => createTheme({
   palette: {
-    mode: 'light', // switch to 'dark' if desired
-    primary: {
-      main: '#1976d2', // Blue
-    },
-    secondary: {
-      main: '#ff4081', // Pink
-    },
-    background: {
-      default: '#f5f5f5',
-    },
+    mode,
+    primary: { main: '#9d8cff' }, secondary: { main: '#f5a3cc' },
+    background: { default: mode === 'dark' ? '#101015' : '#f7f5fa', paper: mode === 'dark' ? '#1a181e' : '#ffffff' },
   },
-  typography: {
-    fontFamily: 'Roboto, Arial, sans-serif',
-    h4: {
-      fontWeight: 700,
-    },
-  },
-  shape: {
-    borderRadius: 12, // rounded corners
-  },
-  components: {
-    MuiCard: {
-      styleOverrides: {
-        root: {
-          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-          borderRadius: '12px',
-        },
-      },
-    },
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          borderRadius: '8px',
-          textTransform: 'none',
-        },
-      },
-    },
-  },
+  typography: { fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', h1: { fontWeight: 900, letterSpacing: '-.06em' }, h2: { fontWeight: 900, letterSpacing: '-.04em' }, h3: { fontWeight: 800, letterSpacing: '-.035em' }, button: { fontWeight: 700, textTransform: 'none' } },
+  shape: { borderRadius: 14 },
+  components: { MuiButton: { styleOverrides: { root: { borderRadius: 10, boxShadow: 'none' } } }, MuiPaper: { styleOverrides: { root: { backgroundImage: 'none' } } }, MuiCssBaseline: { styleOverrides: { body: { margin: 0 } } } },
 });
 
-export default theme;
+export default getTheme('light');
